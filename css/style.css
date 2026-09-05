@@ -1,3 +1,22 @@
+/* ---- Pixel display font ----
+   "Minecraft" by Idrees Hassan (github.com/IdreesInc/Minecraft-Font),
+   SIL Open Font License 1.1 -- free to bundle/redistribute, unlike the
+   Minecraftia font (personal-use-only, commercial use needs a paid
+   license from its author). Full license + copyright notice retained
+   at assets/fonts/LICENSE-Minecraft-Font.txt per the OFL's terms. */
+@font-face{
+  font-family: 'MCPixel';
+  src: url('../assets/fonts/Minecraft.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face{
+  font-family: 'MCPixel';
+  src: url('../assets/fonts/Minecraft-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
 /* ---- Tokens ---- */
 :root{
   --void: #0F0F12;
@@ -33,7 +52,10 @@
   --sakura-trunk: #2e1e14;
   --title-ink: #141414;
 
-  --font-display: 'Press Start 2P', monospace;
+  /* Press Start 2P (Google Fonts) stays as the fallback if the local
+     file fails to load -- also OFL-licensed, so the fallback chain
+     never drops into an unlicensed or generic modern font. */
+  --font-display: 'MCPixel', 'Press Start 2P', monospace;
   --font-body: 'IBM Plex Mono', ui-monospace, monospace;
 
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
