@@ -176,23 +176,40 @@ button{ font: inherit; }
 .titlescreen.visible{ opacity: 1; }
 .titlescreen.ts-hidden{ display: none; }
 
-/* ---- Background: a single panorama IMAGE, not procedural CSS art ----
-   assets/images/background.png -- background-color is only a fallback
-   for the moment that file is missing (still true as of this edit; the
-   folder is empty on disk here, so nothing image-related renders yet
-   at all, just this plain dark color, silently). No animation yet --
-   static image only, per instruction; movement comes in a later pass. */
+/* ---- Background: a single panorama IMAGE, animated to match the real
+   compiled CSS pulled from danielomoregie.com's own panorama layer
+   (fetched and read directly, not guessed from watching it):
+     .panorama-container{ background-size:400% 100%;
+       animation:panBackground 60s linear infinite; }
+     @keyframes panBackground{ 0%{bg-pos:0 50%} 50%{100% 50%} to{0 50%} }
+   Their asset is a wide tiled CSS gradient, so they animate
+   background-position; ours is a real cover-sized photo, so the
+   equivalent motion is a horizontal translate3d instead -- same slow
+   60s pacing, same horizontal-only axis (their keyframes never touch
+   the vertical position), but their animation has NO scale/zoom at
+   any point, so this doesn't scale either. inset/width/height oversize
+   the layer as static overscan (not an animated zoom) purely so the
+   translate never exposes an edge. Timing switched to ease-in-out
+   (theirs is linear) since linear would produce a visible velocity
+   snap at each direction change on a real translated photo -- a
+   deliberate adaptation, not a literal copy. */
 .ts-bg{
   position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
   z-index: -10;
   background-color: var(--void);
   background-image: url('../assets/images/background.png');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
+  animation: minecraftPan 60s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes minecraftPan{
+  from{ transform: translate3d(-2.2%, 0, 0); }
+  to{ transform: translate3d(2.2%, 0, 0); }
 }
 
 .ts-overlay{
@@ -200,9 +217,12 @@ button{ font: inherit; }
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  /* Kept light on purpose -- the background image needs to stay
-     clearly visible. Raise this only if legibility actually needs it. */
-  background: rgba(0, 0, 0, 0.15);
+  /* The reference site's own overlay is actually rgba(0,0,0,.35) (read
+     straight from its compiled CSS) -- slightly past the 0.10-0.30
+     range given here. Landed at the top of that given range rather
+     than matching 0.35 exactly, since it was capped explicitly; bump
+     to 0.35 if you want it to match the reference precisely. */
+  background: rgba(0, 0, 0, 0.28);
 }
 
 /* ---- Falling cherry-blossom petals ---- */
