@@ -33,23 +33,7 @@
   --loading-accent: #E74C3C;
   --loading-panel: #33501f;
 
-  /* Landing-page panorama palette -- cherry-blossom dusk, matching the
-     reference screenshot's composition (not a real screenshot, an
-     original stylized scene built from CSS/SVG shapes). */
-  --sky-top: #171a3d;
-  --sky-upper: #322f79;
-  --sky-mid: #7a4a8c;
-  --sky-rose: #c96a86;
-  --sky-horizon: #e8935c;
-  --sun-core: #fff6d8;
-  --sun-mid: #ffd27a;
-  --mountain: #2b2440;
-  --hill-far: #3d5f2f;
-  --hill-near: #2c471f;
-  --river: #4d84b8;
   --sakura-light: #e78fc0;
-  --sakura-dark: #b85f96;
-  --sakura-trunk: #2e1e14;
   --title-ink: #141414;
 
   /* Press Start 2P (Google Fonts) stays as the fallback if the local
@@ -79,9 +63,8 @@ html, body{ height: 100%; overflow: hidden; }
    manual, persistent choice, independent of the OS-level setting. */
 html.motion-off .ts-petal,
 html.motion-off .ts-splash,
-html.motion-off .ts-parallax,
-html.motion-off .ts-sprite,
-html.motion-off .ts-sun{
+html.motion-off .ts-bg,
+html.motion-off .ts-sprite{
   animation: none !important;
 }
 
@@ -189,111 +172,26 @@ button{ font: inherit; }
 .titlescreen.visible{ opacity: 1; }
 .titlescreen.ts-hidden{ display: none; }
 
-/* ---- Background panorama: sky -> sun -> distant mountains -> river ->
-   rolling hills -> cherry-blossom tree -> foreground vegetation. All
-   original CSS/SVG shapes -- no traced screenshots, no Mojang assets. ---- */
-.ts-sky{
+/* ---- Background: a single panorama IMAGE, not procedural CSS art ----
+   See assets/images/background.jpg (a clearly-marked placeholder card
+   until a real Minecraft screenshot is dropped in at that path). CSS
+   here only positions, sizes, and animates it -- it doesn't draw the
+   scene. A slow scale+pan sway stands in for true infinite panning
+   (which needs seamlessly-tileable source art); it reverses smoothly
+   via `alternate` so there's never a visible reset/jump. */
+.ts-bg{
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(180deg,
-    var(--sky-top) 0%, var(--sky-upper) 26%, var(--sky-mid) 46%,
-    var(--sky-rose) 64%, var(--sky-horizon) 82%, #f5c26a 100%);
+  background-image: url('../assets/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  animation: panorama 70s ease-in-out infinite alternate;
 }
-.ts-sun{
-  position: absolute;
-  right: 19%;
-  bottom: 29vh;
-  width: min(11vw, 140px);
-  height: min(11vw, 140px);
-  border-radius: 50%;
-  z-index: 0;
-  background: radial-gradient(circle, var(--sun-core) 0%, var(--sun-mid) 42%, rgba(255, 178, 90, 0) 76%);
-  animation: sun-glow 6s ease-in-out infinite;
-}
-@keyframes sun-glow{
-  0%, 100%{ opacity: 0.9; }
-  50%{ opacity: 1; }
-}
-
-/* Everything that pans/zooms together lives inside .ts-parallax -- an
-   extremely slow drift-and-settle sway (not a true infinite tiling pan,
-   which would need seamless source art; this reads the same way at menu
-   scale: slow, continuous, no visible reset/jump, because it reverses
-   smoothly via `alternate` instead of snapping back to start). */
-.ts-parallax{
-  position: absolute;
-  inset: -4% -6%;
-  z-index: 1;
-  animation: panorama-drift 75s ease-in-out infinite alternate;
-}
-@keyframes panorama-drift{
-  0%{ transform: translateX(-1.4%) scale(1.015); }
-  100%{ transform: translateX(1.4%) scale(1.035); }
-}
-
-.ts-skyline{ position: absolute; bottom: 0; left: 0; width: 100%; }
-.ts-skyline-svg{ width: 100%; display: block; }
-.ts-skyline-svg rect{ fill: currentColor; }
-
-.ts-skyline-mountains{
-  bottom: 8vh;
-  opacity: 0.55;
-  color: var(--mountain);
-}
-.ts-skyline-mountains .ts-skyline-svg{ height: 26vh; }
-
-.ts-river{
-  position: absolute;
-  right: 6%;
-  bottom: 15vh;
-  width: 40%;
-  height: 5vh;
-  background: linear-gradient(115deg, var(--river) 0%, #8cc1e8 45%, var(--river) 100%);
-  opacity: 0.65;
-  transform: rotate(-4deg) skewY(-3deg);
-}
-
-.ts-skyline-hills-far{
-  bottom: 5vh;
-  opacity: 0.75;
-  color: var(--hill-far);
-}
-.ts-skyline-hills-far .ts-skyline-svg{ height: 16vh; }
-
-.ts-skyline-hills-near{
-  bottom: 0;
-  opacity: 0.9;
-  color: var(--hill-near);
-}
-.ts-skyline-hills-near .ts-skyline-svg{ height: 22vh; }
-
-/* Large cherry-blossom tree, left side, top to bottom -- the dominant
-   foreground shape, matching the reference's left-side canopy. */
-.ts-sakura-tree{
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 40%;
-  height: 100%;
-  z-index: 1;
-}
-.ts-sakura-svg{ width: 100%; height: 100%; display: block; }
-
-.ts-foreground{
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 9vh;
-  z-index: 1;
-  background: linear-gradient(180deg, rgba(44, 71, 31, 0) 0%, var(--hill-near) 60%);
-}
-.ts-foreground-flowers{
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+@keyframes panorama{
+  0%{ transform: scale(1.06) translateX(-1%); }
+  50%{ transform: scale(1.09) translateX(1%); }
+  100%{ transform: scale(1.06) translateX(-1%); }
 }
 
 .ts-overlay{
@@ -301,7 +199,12 @@ button{ font: inherit; }
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 42%, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.5) 100%);
+  /* Flat cinematic darkening (the reference's dim-but-legible look)
+     layered under a light edge vignette -- keeps the scenery visible
+     while giving the foreground UI enough contrast to read clearly. */
+  background:
+    radial-gradient(ellipse at 50% 45%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.28) 100%),
+    rgba(0, 0, 0, 0.3);
 }
 
 /* ---- Falling cherry-blossom petals ---- */
@@ -319,12 +222,26 @@ button{ font: inherit; }
   animation-iteration-count: infinite;
 }
 .ts-petal-small{ width: 5px; height: 5px; background: #f4c9e3; }
+/* Two more silhouettes for variety -- a small diamond and a plain
+   square -- alongside the default 8-point petal shape. */
+.ts-petal-diamond{
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  background: #f0b8dc;
+}
+.ts-petal-square{ clip-path: none; background: #eec3de; width: 5px; height: 5px; }
 @keyframes petal-drift{
   0%{ transform: translate(0, 0) rotate(0deg); opacity: 0; }
   8%{ opacity: 0.85; }
   92%{ opacity: 0.85; }
   100%{ transform: translate(70px, 108vh) rotate(320deg); opacity: 0; }
 }
+@keyframes petal-drift-alt{
+  0%{ transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  8%{ opacity: 0.8; }
+  92%{ opacity: 0.8; }
+  100%{ transform: translate(-55px, 108vh) rotate(-280deg); opacity: 0; }
+}
+.ts-petal-diamond, .ts-petal-square:nth-of-type(3n){ animation-name: petal-drift-alt; }
 
 /* ---- Top-right settings button + panel ---- */
 .ts-icon-btn{
@@ -420,87 +337,97 @@ button{ font: inherit; }
   align-items: center;
 }
 
-.ts-title-block{ margin-bottom: 30px; position: relative; }
-.ts-title{
-  margin: 0;
+.ts-title-block{ margin-bottom: 14px; position: relative; }
+/* Real SVG geometry rather than a text-shadow trick: #tt-glyphs (the
+   one and only place "HUY NGUYEN" is typed) is stamped six times via
+   <use> at stepped offsets for a solid dark extrusion, then once more
+   as the white front face with a thick round-jointed black stroke. */
+#tt-glyphs{
   font-family: var(--font-display);
-  font-size: clamp(2.1rem, 10vw, 8.6rem);
-  color: #ffffff;
-  letter-spacing: 0;
-  white-space: nowrap;
-  /* Chunky 3D block-letter look: a thin black outline all around the
-     front face (text-stroke) plus a stacked 1px-step text-shadow trail
-     that reads as a solid dark extrusion, not a striped repeat. */
-  -webkit-text-stroke: 3px var(--title-ink);
-  text-shadow:
-    1px 1px 0 #333, 2px 2px 0 #303030, 3px 3px 0 #2c2c2c, 4px 4px 0 #282828,
-    5px 5px 0 #232323, 6px 6px 0 #1e1e1e, 7px 7px 0 #191919, 8px 8px 0 #141414,
-    9px 9px 0 #0f0f0f, 10px 10px 0 #0a0a0a;
+  font-size: 128px;
+  letter-spacing: -4px;
 }
-.tt-creeper-wrap{ position: relative; display: inline-block; }
-.tt-creeper-face{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 52%;
-  height: 52%;
-  transform: translate(-50%, -50%);
-  fill: var(--title-ink);
-  pointer-events: none;
+.tt-extrude{ fill: var(--title-ink); }
+.tt-face{
+  fill: #f2f0ea;
+  stroke: #0a0a0a;
+  stroke-width: 7px;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+}
+.ts-title-svg{
+  display: block;
+  width: min(80vw, 1250px);
+  height: auto;
+  aspect-ratio: 1000 / 220;
+  overflow: visible;
 }
 
-/* Sits fully above the title, tucked to the upper-right and rotated like
-   a tilted tag, overlapping the title's lower-right corner. */
+/* Anchored at the title's own bottom-right corner and rotated around
+   that same point (never translated further out), so the excursion
+   past the title's edge is small and bounded regardless of text
+   length -- the title container's own min(80vw,1250px) width already
+   guarantees at least 10vw of clearance to the viewport edge. */
 .ts-splash{
   position: absolute;
-  bottom: 6%;
-  right: -6%;
+  bottom: 10%;
+  right: 4%;
+  max-width: 42%;
   white-space: nowrap;
   text-align: right;
   font-family: var(--font-display);
+  font-weight: 700;
   font-size: clamp(0.7rem, 2vw, 1.15rem);
   color: var(--gold);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
-  transform: rotate(-17deg) scale(1);
+  transform: rotate(-15deg);
   transform-origin: bottom right;
-  animation: splash-pulse 1.6s ease-in-out infinite;
+  animation: splashPulse 1.5s ease-in-out infinite;
 }
-@keyframes splash-pulse{
-  0%, 100%{ transform: rotate(-17deg) scale(1); }
-  50%{ transform: rotate(-17deg) scale(1.04); }
+@keyframes splashPulse{
+  0%, 100%{ transform: rotate(-15deg) scale(1); }
+  50%{ transform: rotate(-15deg) scale(1.05); }
 }
 
 .ts-menu{
   display: flex;
   flex-direction: column;
   gap: 3px;
-  width: min(680px, 44vw);
-  min-width: 320px;
+  width: min(650px, 42vw);
+  min-width: 300px;
 }
-/* Banded gradient mimicking the vanilla button texture (lighter top
-   band, mid band, darker bottom band) plus crisp edge highlight/shadow
-   lines and a thick dark border -- sharp square corners throughout. */
+/* Banded gradient mimicking the vanilla button texture, a thick
+   near-black outer border, and an asymmetric inset bevel -- bright
+   highlight on the top/left edge, darker shade on the bottom/right --
+   for a genuine raised look. Sharp square corners throughout. */
 .ts-menu-btn{
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 71px;
+  min-height: 68px;
   text-align: center;
   text-decoration: none;
   font-family: var(--font-display);
   font-size: clamp(0.7rem, 1.4vw, 0.95rem);
   color: var(--offwhite);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
-  padding: 10px 20px;
+  padding: 8px 20px;
   background: linear-gradient(180deg,
     #8c8c8c 0%, #8c8c8c 10%, #737373 10%, #737373 84%, #5e5e5e 84%, #5e5e5e 100%);
-  border: 2px solid #1a1a1a;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.35);
+  border: 3px solid #0d0d0d;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.5),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.4);
   cursor: pointer;
   transition: filter 120ms var(--ease), transform 80ms var(--ease);
 }
-.ts-menu-btn:hover, .ts-menu-btn:focus-visible{ filter: brightness(1.15); }
+.ts-menu-btn:hover, .ts-menu-btn:focus-visible{
+  filter: brightness(1.15);
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.65),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.4);
+}
 .ts-menu-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
 .ts-menu-btn:active{ filter: brightness(0.85); transform: translateY(2px); }
 
@@ -600,8 +527,8 @@ button{ font: inherit; }
 /* Shorter viewports (e.g. 1280x720): tighten vertical rhythm so nothing
    in the corner stacks or the centered content collides. */
 @media (max-height: 760px){
-  .ts-title-block{ margin-bottom: 18px; }
-  .ts-title{ font-size: clamp(1.8rem, 8.5vw, 6.4rem); }
+  .ts-title-block{ margin-bottom: 10px; }
+  .ts-title-svg{ width: min(64vw, 820px); }
   .ts-menu{ gap: 3px; }
   .ts-menu-btn{ min-height: 52px; padding: 6px 20px; }
   .ts-player-corner{ gap: 8px; }
@@ -866,5 +793,5 @@ button{ font: inherit; }
   .inventory-grid{ grid-template-columns: repeat(2, 1fr); max-width: 280px; }
   .ts-menu{ width: min(400px, 92vw); min-width: 0; }
   .loading-logo{ padding: 24px 32px; }
-  .ts-title{ font-size: clamp(1.6rem, 11vw, 3.4rem); }
+  .ts-title-svg{ width: min(90vw, 480px); }
 }

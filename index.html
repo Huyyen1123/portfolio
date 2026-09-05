@@ -28,129 +28,12 @@
 </div>
 
 <header class="titlescreen" id="titlescreen">
-  <!-- Background: an original cherry-blossom-dusk panorama, all CSS/SVG
-       shapes -- no traced screenshots, no Mojang textures or assets.
-       Sky + sun sit still; everything else (mountains, river, hills,
-       tree) lives inside .ts-parallax for the slow drift/zoom. -->
-  <div class="ts-sky" aria-hidden="true"></div>
-  <div class="ts-sun" aria-hidden="true"></div>
-
-  <div class="ts-parallax" aria-hidden="true">
-    <div class="ts-skyline ts-skyline-mountains" aria-hidden="true">
-      <svg viewBox="0 0 400 90" preserveAspectRatio="none" class="ts-skyline-svg">
-        <rect x="10" y="55" width="40" height="35"/>
-        <rect x="18" y="35" width="24" height="55"/>
-        <rect x="25" y="15" width="10" height="75"/>
-        <rect x="29" y="4" width="4" height="86"/>
-        <rect x="90" y="50" width="46" height="40"/>
-        <rect x="100" y="28" width="26" height="62"/>
-        <rect x="108" y="10" width="12" height="80"/>
-        <rect x="112" y="0" width="5" height="90"/>
-        <rect x="180" y="58" width="42" height="32"/>
-        <rect x="188" y="38" width="26" height="52"/>
-        <rect x="196" y="18" width="12" height="72"/>
-        <rect x="200" y="6" width="5" height="84"/>
-        <rect x="270" y="52" width="48" height="38"/>
-        <rect x="280" y="30" width="28" height="60"/>
-        <rect x="288" y="12" width="13" height="78"/>
-        <rect x="292" y="2" width="5" height="88"/>
-        <rect x="350" y="60" width="38" height="30"/>
-        <rect x="357" y="42" width="22" height="48"/>
-        <rect x="363" y="24" width="10" height="66"/>
-        <rect x="366" y="14" width="4" height="76"/>
-      </svg>
-    </div>
-
-    <div class="ts-river" aria-hidden="true"></div>
-
-    <div class="ts-skyline ts-skyline-hills-far" aria-hidden="true">
-      <svg viewBox="0 0 400 50" preserveAspectRatio="none" class="ts-skyline-svg">
-        <rect x="0" y="28" width="55" height="22"/>
-        <rect x="8" y="18" width="39" height="32"/>
-        <rect x="17" y="8" width="21" height="42"/>
-        <rect x="60" y="6" width="3" height="20"/>
-        <rect x="90" y="24" width="65" height="26"/>
-        <rect x="102" y="12" width="45" height="38"/>
-        <rect x="115" y="2" width="23" height="48"/>
-        <rect x="165" y="34" width="3" height="12"/>
-        <rect x="159" y="26" width="16" height="10"/>
-        <rect x="162" y="20" width="10" height="8"/>
-        <rect x="195" y="4" width="3" height="18"/>
-        <rect x="220" y="26" width="60" height="24"/>
-        <rect x="232" y="14" width="42" height="36"/>
-        <rect x="244" y="4" width="22" height="46"/>
-        <rect x="290" y="32" width="3" height="14"/>
-        <rect x="284" y="24" width="16" height="10"/>
-        <rect x="287" y="18" width="10" height="8"/>
-        <rect x="320" y="22" width="70" height="28"/>
-        <rect x="334" y="10" width="48" height="40"/>
-        <rect x="348" y="0" width="24" height="50"/>
-        <rect x="392" y="4" width="3" height="16"/>
-      </svg>
-    </div>
-
-    <div class="ts-skyline ts-skyline-hills-near" aria-hidden="true">
-      <svg viewBox="0 0 400 60" preserveAspectRatio="none" class="ts-skyline-svg">
-        <rect x="0" y="38" width="72" height="22"/>
-        <rect x="10" y="26" width="50" height="34"/>
-        <rect x="22" y="14" width="26" height="46"/>
-        <rect x="30" y="4" width="10" height="56"/>
-        <rect x="80" y="44" width="4" height="16"/>
-        <rect x="72" y="32" width="20" height="14"/>
-        <rect x="76" y="24" width="12" height="10"/>
-        <rect x="105" y="32" width="85" height="28"/>
-        <rect x="118" y="18" width="58" height="42"/>
-        <rect x="132" y="6" width="30" height="54"/>
-        <rect x="141" y="0" width="12" height="60"/>
-        <rect x="200" y="46" width="4" height="14"/>
-        <rect x="192" y="34" width="20" height="14"/>
-        <rect x="196" y="26" width="12" height="10"/>
-        <rect x="220" y="36" width="76" height="24"/>
-        <rect x="232" y="22" width="52" height="38"/>
-        <rect x="245" y="10" width="27" height="50"/>
-        <rect x="253" y="2" width="11" height="58"/>
-        <rect x="310" y="42" width="4" height="18"/>
-        <rect x="302" y="30" width="20" height="14"/>
-        <rect x="306" y="22" width="12" height="10"/>
-        <rect x="330" y="34" width="70" height="26"/>
-        <rect x="342" y="20" width="48" height="40"/>
-        <rect x="354" y="8" width="26" height="52"/>
-        <rect x="362" y="0" width="10" height="60"/>
-      </svg>
-    </div>
-
-    <!-- Large cherry-blossom tree, left side, full height -- a blob
-         cluster of overlapping squares (the same voxel-canopy idea as
-         real Minecraft leaf blocks), two-tone for a little shading, plus
-         a dark trunk with two branch stubs. -->
-    <div class="ts-sakura-tree" aria-hidden="true">
-      <svg viewBox="0 0 200 500" preserveAspectRatio="none" class="ts-sakura-svg">
-        <rect x="65" y="225" width="26" height="275" fill="#2e1e14"/>
-        <rect x="95" y="245" width="28" height="255" fill="#26180f"/>
-        <rect x="45" y="260" width="20" height="180" fill="#2e1e14"/>
-        <rect x="150" y="255" width="18" height="170" fill="#2e1e14"/>
-        <rect x="0" y="50" width="55" height="55" fill="#b85f96"/>
-        <rect x="130" y="100" width="62" height="58" fill="#b85f96"/>
-        <rect x="30" y="150" width="60" height="58" fill="#b85f96"/>
-        <rect x="85" y="150" width="62" height="58" fill="#b85f96"/>
-        <rect x="140" y="155" width="50" height="55" fill="#b85f96"/>
-        <rect x="10" y="200" width="55" height="55" fill="#b85f96"/>
-        <rect x="65" y="198" width="60" height="55" fill="#b85f96"/>
-        <rect x="120" y="195" width="55" height="55" fill="#b85f96"/>
-        <rect x="20" y="5" width="65" height="60" fill="#e78fc0"/>
-        <rect x="75" y="0" width="70" height="55" fill="#e78fc0"/>
-        <rect x="135" y="10" width="60" height="58" fill="#e78fc0"/>
-        <rect x="60" y="50" width="70" height="60" fill="#e78fc0"/>
-        <rect x="115" y="50" width="65" height="62" fill="#e78fc0"/>
-        <rect x="165" y="45" width="32" height="60" fill="#e78fc0"/>
-        <rect x="10" y="100" width="60" height="60" fill="#e78fc0"/>
-        <rect x="70" y="95" width="68" height="62" fill="#e78fc0"/>
-      </svg>
-    </div>
-
-    <div class="ts-foreground" aria-hidden="true"></div>
-  </div>
-
+  <!-- Background: a single detailed panorama image (not procedural CSS
+       art) -- see assets/images/background.jpg. No real image was
+       available to bundle, so that file is a clearly-marked placeholder
+       card; drop a real Minecraft cherry-blossom panorama screenshot in
+       at that same path and this layer picks it up automatically. -->
+  <div class="ts-bg" aria-hidden="true"></div>
   <div class="ts-overlay" aria-hidden="true"></div>
 
   <!-- Falling cherry-blossom petals -- small pixel-plus shapes drifting
@@ -176,18 +59,42 @@
   <!-- Top-right: settings button, opens the settings panel below. -->
   <button type="button" class="ts-icon-btn ts-settings-btn" id="settings-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Open settings">
     <svg viewBox="0 0 16 16" class="ts-icon-svg" aria-hidden="true">
-      <rect x="6" y="1" width="4" height="3" fill="currentColor"/>
-      <rect x="6" y="12" width="4" height="3" fill="currentColor"/>
-      <rect x="1" y="6" width="3" height="4" fill="currentColor"/>
-      <rect x="12" y="6" width="3" height="4" fill="currentColor"/>
-      <rect x="5" y="5" width="6" height="6" fill="currentColor"/>
-      <rect x="6.5" y="6.5" width="3" height="3" fill="#737373"/>
+      <!-- 8-tooth pixel gear: four cardinal teeth + four diagonal teeth
+           around a ringed hub, more clearly gear-shaped than a plain
+           4-notch cross. -->
+      <rect x="6" y="0" width="4" height="3" fill="currentColor"/>
+      <rect x="6" y="13" width="4" height="3" fill="currentColor"/>
+      <rect x="0" y="6" width="3" height="4" fill="currentColor"/>
+      <rect x="13" y="6" width="3" height="4" fill="currentColor"/>
+      <rect x="2" y="2" width="3" height="3" fill="currentColor"/>
+      <rect x="11" y="2" width="3" height="3" fill="currentColor"/>
+      <rect x="2" y="11" width="3" height="3" fill="currentColor"/>
+      <rect x="11" y="11" width="3" height="3" fill="currentColor"/>
+      <rect x="4" y="4" width="8" height="8" fill="currentColor"/>
+      <rect x="6" y="6" width="4" height="4" fill="#737373"/>
     </svg>
   </button>
 
   <div class="ts-content">
     <div class="ts-title-block">
-      <h1 class="ts-title">HUY <span class="tt-creeper-wrap">N<svg class="tt-creeper-face" viewBox="0 0 8 8" aria-hidden="true"><rect x="1" y="1" width="2" height="2"/><rect x="5" y="1" width="2" height="2"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="5" width="2" height="2"/><rect x="5" y="4" width="1" height="1"/></svg></span>GUYEN</h1>
+      <!-- 3D block-letter title, built as real SVG geometry (not a
+           text-shadow trick): a shared <text> glyph run is stamped six
+           times via <use> at stepped offsets to build a solid dark
+           extrusion, then once more on top as the white/black-outlined
+           front face. Using <use> instead of retyping the string six
+           times also guarantees every copy reads exactly "HUY NGUYEN". -->
+      <svg class="ts-title-svg" viewBox="0 0 1000 220" role="img" aria-label="Huy Nguyen">
+        <defs>
+          <text id="tt-glyphs" x="500" y="150" text-anchor="middle">HUY NGUYEN</text>
+        </defs>
+        <use href="#tt-glyphs" x="12" y="14" class="tt-extrude"/>
+        <use href="#tt-glyphs" x="10" y="11.5" class="tt-extrude"/>
+        <use href="#tt-glyphs" x="8" y="9" class="tt-extrude"/>
+        <use href="#tt-glyphs" x="6" y="6.5" class="tt-extrude"/>
+        <use href="#tt-glyphs" x="4" y="4" class="tt-extrude"/>
+        <use href="#tt-glyphs" x="2" y="1.5" class="tt-extrude"/>
+        <use href="#tt-glyphs" class="tt-face"/>
+      </svg>
       <p class="ts-splash">Software Engineer!</p>
     </div>
 
