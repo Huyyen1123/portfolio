@@ -6,18 +6,9 @@
 <title>Huy Nguyen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-<!-- Debug-screen HUD, Minecraft F3-style -- pure flavor text (not real
-     telemetry), so it's aria-hidden. Coordinates drift on a slow fake
-     random walk (script.js); the biome label tracks whichever panel is
-     open (data-biome on #titlescreen and each .view-panel). -->
-<div id="debug-hud" aria-hidden="true">
-  <p>XYZ: <span id="hud-x">0</span> / 64 / <span id="hud-z">0</span></p>
-  <p>Biome: <span id="hud-biome">Spawn</span></p>
-</div>
 
 <div class="loading-screen" id="loading-screen">
   <div class="loading-logo">
@@ -36,185 +27,168 @@
   </div>
 </div>
 
-<header class="titlescreen" id="titlescreen" data-biome="Spawn">
-  <!-- Background: four depth layers, all CSS-drawn, nothing traced from a
-       real screenshot. Sky gradient -> distant snow peaks -> mid-ground
-       (darker, smaller-scale hills + a few thin distant spires) -> front
-       row (lighter, larger). -->
+<header class="titlescreen" id="titlescreen">
+  <!-- Background: an original cherry-blossom-dusk panorama, all CSS/SVG
+       shapes -- no traced screenshots, no Mojang textures or assets.
+       Sky + sun sit still; everything else (mountains, river, hills,
+       tree) lives inside .ts-parallax for the slow drift/zoom. -->
   <div class="ts-sky" aria-hidden="true"></div>
+  <div class="ts-sun" aria-hidden="true"></div>
 
-  <div class="ts-skyline ts-skyline-snowcaps" aria-hidden="true">
-    <svg viewBox="0 0 400 90" preserveAspectRatio="none" class="ts-skyline-svg">
-      <!-- Jagged snow peaks, same stacked-narrowing-rect technique as the
-           hill mounds below, just taller/thinner -- pale and sitting
-           furthest back so they read as sunlit, snow-capped mountains
-           behind the nearer green terrain. -->
-      <rect x="10" y="55" width="40" height="35"/>
-      <rect x="18" y="35" width="24" height="55"/>
-      <rect x="25" y="15" width="10" height="75"/>
-      <rect x="29" y="4" width="4" height="86"/>
+  <div class="ts-parallax" aria-hidden="true">
+    <div class="ts-skyline ts-skyline-mountains" aria-hidden="true">
+      <svg viewBox="0 0 400 90" preserveAspectRatio="none" class="ts-skyline-svg">
+        <rect x="10" y="55" width="40" height="35"/>
+        <rect x="18" y="35" width="24" height="55"/>
+        <rect x="25" y="15" width="10" height="75"/>
+        <rect x="29" y="4" width="4" height="86"/>
+        <rect x="90" y="50" width="46" height="40"/>
+        <rect x="100" y="28" width="26" height="62"/>
+        <rect x="108" y="10" width="12" height="80"/>
+        <rect x="112" y="0" width="5" height="90"/>
+        <rect x="180" y="58" width="42" height="32"/>
+        <rect x="188" y="38" width="26" height="52"/>
+        <rect x="196" y="18" width="12" height="72"/>
+        <rect x="200" y="6" width="5" height="84"/>
+        <rect x="270" y="52" width="48" height="38"/>
+        <rect x="280" y="30" width="28" height="60"/>
+        <rect x="288" y="12" width="13" height="78"/>
+        <rect x="292" y="2" width="5" height="88"/>
+        <rect x="350" y="60" width="38" height="30"/>
+        <rect x="357" y="42" width="22" height="48"/>
+        <rect x="363" y="24" width="10" height="66"/>
+        <rect x="366" y="14" width="4" height="76"/>
+      </svg>
+    </div>
 
-      <rect x="90" y="50" width="46" height="40"/>
-      <rect x="100" y="28" width="26" height="62"/>
-      <rect x="108" y="10" width="12" height="80"/>
-      <rect x="112" y="0" width="5" height="90"/>
+    <div class="ts-river" aria-hidden="true"></div>
 
-      <rect x="180" y="58" width="42" height="32"/>
-      <rect x="188" y="38" width="26" height="52"/>
-      <rect x="196" y="18" width="12" height="72"/>
-      <rect x="200" y="6" width="5" height="84"/>
+    <div class="ts-skyline ts-skyline-hills-far" aria-hidden="true">
+      <svg viewBox="0 0 400 50" preserveAspectRatio="none" class="ts-skyline-svg">
+        <rect x="0" y="28" width="55" height="22"/>
+        <rect x="8" y="18" width="39" height="32"/>
+        <rect x="17" y="8" width="21" height="42"/>
+        <rect x="60" y="6" width="3" height="20"/>
+        <rect x="90" y="24" width="65" height="26"/>
+        <rect x="102" y="12" width="45" height="38"/>
+        <rect x="115" y="2" width="23" height="48"/>
+        <rect x="165" y="34" width="3" height="12"/>
+        <rect x="159" y="26" width="16" height="10"/>
+        <rect x="162" y="20" width="10" height="8"/>
+        <rect x="195" y="4" width="3" height="18"/>
+        <rect x="220" y="26" width="60" height="24"/>
+        <rect x="232" y="14" width="42" height="36"/>
+        <rect x="244" y="4" width="22" height="46"/>
+        <rect x="290" y="32" width="3" height="14"/>
+        <rect x="284" y="24" width="16" height="10"/>
+        <rect x="287" y="18" width="10" height="8"/>
+        <rect x="320" y="22" width="70" height="28"/>
+        <rect x="334" y="10" width="48" height="40"/>
+        <rect x="348" y="0" width="24" height="50"/>
+        <rect x="392" y="4" width="3" height="16"/>
+      </svg>
+    </div>
 
-      <rect x="270" y="52" width="48" height="38"/>
-      <rect x="280" y="30" width="28" height="60"/>
-      <rect x="288" y="12" width="13" height="78"/>
-      <rect x="292" y="2" width="5" height="88"/>
+    <div class="ts-skyline ts-skyline-hills-near" aria-hidden="true">
+      <svg viewBox="0 0 400 60" preserveAspectRatio="none" class="ts-skyline-svg">
+        <rect x="0" y="38" width="72" height="22"/>
+        <rect x="10" y="26" width="50" height="34"/>
+        <rect x="22" y="14" width="26" height="46"/>
+        <rect x="30" y="4" width="10" height="56"/>
+        <rect x="80" y="44" width="4" height="16"/>
+        <rect x="72" y="32" width="20" height="14"/>
+        <rect x="76" y="24" width="12" height="10"/>
+        <rect x="105" y="32" width="85" height="28"/>
+        <rect x="118" y="18" width="58" height="42"/>
+        <rect x="132" y="6" width="30" height="54"/>
+        <rect x="141" y="0" width="12" height="60"/>
+        <rect x="200" y="46" width="4" height="14"/>
+        <rect x="192" y="34" width="20" height="14"/>
+        <rect x="196" y="26" width="12" height="10"/>
+        <rect x="220" y="36" width="76" height="24"/>
+        <rect x="232" y="22" width="52" height="38"/>
+        <rect x="245" y="10" width="27" height="50"/>
+        <rect x="253" y="2" width="11" height="58"/>
+        <rect x="310" y="42" width="4" height="18"/>
+        <rect x="302" y="30" width="20" height="14"/>
+        <rect x="306" y="22" width="12" height="10"/>
+        <rect x="330" y="34" width="70" height="26"/>
+        <rect x="342" y="20" width="48" height="40"/>
+        <rect x="354" y="8" width="26" height="52"/>
+        <rect x="362" y="0" width="10" height="60"/>
+      </svg>
+    </div>
 
-      <rect x="350" y="60" width="38" height="30"/>
-      <rect x="357" y="42" width="22" height="48"/>
-      <rect x="363" y="24" width="10" height="66"/>
-      <rect x="366" y="14" width="4" height="76"/>
-    </svg>
+    <!-- Large cherry-blossom tree, left side, full height -- a blob
+         cluster of overlapping squares (the same voxel-canopy idea as
+         real Minecraft leaf blocks), two-tone for a little shading, plus
+         a dark trunk with two branch stubs. -->
+    <div class="ts-sakura-tree" aria-hidden="true">
+      <svg viewBox="0 0 200 500" preserveAspectRatio="none" class="ts-sakura-svg">
+        <rect x="65" y="225" width="26" height="275" fill="#2e1e14"/>
+        <rect x="95" y="245" width="28" height="255" fill="#26180f"/>
+        <rect x="45" y="260" width="20" height="180" fill="#2e1e14"/>
+        <rect x="150" y="255" width="18" height="170" fill="#2e1e14"/>
+        <rect x="0" y="50" width="55" height="55" fill="#b85f96"/>
+        <rect x="130" y="100" width="62" height="58" fill="#b85f96"/>
+        <rect x="30" y="150" width="60" height="58" fill="#b85f96"/>
+        <rect x="85" y="150" width="62" height="58" fill="#b85f96"/>
+        <rect x="140" y="155" width="50" height="55" fill="#b85f96"/>
+        <rect x="10" y="200" width="55" height="55" fill="#b85f96"/>
+        <rect x="65" y="198" width="60" height="55" fill="#b85f96"/>
+        <rect x="120" y="195" width="55" height="55" fill="#b85f96"/>
+        <rect x="20" y="5" width="65" height="60" fill="#e78fc0"/>
+        <rect x="75" y="0" width="70" height="55" fill="#e78fc0"/>
+        <rect x="135" y="10" width="60" height="58" fill="#e78fc0"/>
+        <rect x="60" y="50" width="70" height="60" fill="#e78fc0"/>
+        <rect x="115" y="50" width="65" height="62" fill="#e78fc0"/>
+        <rect x="165" y="45" width="32" height="60" fill="#e78fc0"/>
+        <rect x="10" y="100" width="60" height="60" fill="#e78fc0"/>
+        <rect x="70" y="95" width="68" height="62" fill="#e78fc0"/>
+      </svg>
+    </div>
+
+    <div class="ts-foreground" aria-hidden="true"></div>
   </div>
 
-  <div class="ts-skyline ts-skyline-mid" aria-hidden="true">
-    <svg viewBox="0 0 400 50" preserveAspectRatio="none" class="ts-skyline-svg">
-      <!-- Stepped hill mounds (each a stack of narrowing, rising rects --
-           a blocky/voxel mound profile, not a flat-topped tower slab). -->
-      <rect x="0" y="28" width="55" height="22"/>
-      <rect x="8" y="18" width="39" height="32"/>
-      <rect x="17" y="8" width="21" height="42"/>
-      <!-- thin distant spire, kept for texture variety -->
-      <rect x="60" y="6" width="3" height="20"/>
-      <rect x="90" y="24" width="65" height="26"/>
-      <rect x="102" y="12" width="45" height="38"/>
-      <rect x="115" y="2" width="23" height="48"/>
-      <!-- blocky tree: trunk + two-tier canopy -->
-      <rect x="165" y="34" width="3" height="12"/>
-      <rect x="159" y="26" width="16" height="10"/>
-      <rect x="162" y="20" width="10" height="8"/>
-      <rect x="195" y="4" width="3" height="18"/>
-      <rect x="220" y="26" width="60" height="24"/>
-      <rect x="232" y="14" width="42" height="36"/>
-      <rect x="244" y="4" width="22" height="46"/>
-      <rect x="290" y="32" width="3" height="14"/>
-      <rect x="284" y="24" width="16" height="10"/>
-      <rect x="287" y="18" width="10" height="8"/>
-      <rect x="320" y="22" width="70" height="28"/>
-      <rect x="334" y="10" width="48" height="40"/>
-      <rect x="348" y="0" width="24" height="50"/>
-      <rect x="392" y="4" width="3" height="16"/>
-    </svg>
-  </div>
-
-  <div class="ts-skyline ts-skyline-front" aria-hidden="true">
-    <svg viewBox="0 0 400 60" preserveAspectRatio="none" class="ts-skyline-svg">
-      <!-- Same stepped-mound + blocky-tree vocabulary, scaled up (this row
-           reads as the nearer, larger terrain). -->
-      <rect x="0" y="38" width="72" height="22"/>
-      <rect x="10" y="26" width="50" height="34"/>
-      <rect x="22" y="14" width="26" height="46"/>
-      <rect x="30" y="4" width="10" height="56"/>
-      <rect x="80" y="44" width="4" height="16"/>
-      <rect x="72" y="32" width="20" height="14"/>
-      <rect x="76" y="24" width="12" height="10"/>
-      <rect x="105" y="32" width="85" height="28"/>
-      <rect x="118" y="18" width="58" height="42"/>
-      <rect x="132" y="6" width="30" height="54"/>
-      <rect x="141" y="0" width="12" height="60"/>
-      <rect x="200" y="46" width="4" height="14"/>
-      <rect x="192" y="34" width="20" height="14"/>
-      <rect x="196" y="26" width="12" height="10"/>
-      <rect x="220" y="36" width="76" height="24"/>
-      <rect x="232" y="22" width="52" height="38"/>
-      <rect x="245" y="10" width="27" height="50"/>
-      <rect x="253" y="2" width="11" height="58"/>
-      <rect x="310" y="42" width="4" height="18"/>
-      <rect x="302" y="30" width="20" height="14"/>
-      <rect x="306" y="22" width="12" height="10"/>
-      <rect x="330" y="34" width="70" height="26"/>
-      <rect x="342" y="20" width="48" height="40"/>
-      <rect x="354" y="8" width="26" height="52"/>
-      <rect x="362" y="0" width="10" height="60"/>
-    </svg>
-  </div>
-
-  <!-- A vignette overlay (darker at the edges) sitting above the
-       background layers, below the particles/content -- a compositing
-       technique borrowed from the reference project's #overlay div, but
-       as a dark radial wash suited to our palette instead of their light
-       rgba(255,255,255,0.1) wash. -->
   <div class="ts-overlay" aria-hidden="true"></div>
 
-  <!-- Falling snow -- small pale flakes drifting straight down, unlike
-       the upward-floating gold/offwhite dust particles below. -->
-  <div class="ts-snow" aria-hidden="true">
-    <span class="ts-snowflake" style="left:2%; animation-delay:0s; animation-duration:9s;"></span>
-    <span class="ts-snowflake ts-snowflake-small" style="left:9%; animation-delay:3.5s; animation-duration:12s;"></span>
-    <span class="ts-snowflake" style="left:17%; animation-delay:1.2s; animation-duration:8s;"></span>
-    <span class="ts-snowflake ts-snowflake-small" style="left:26%; animation-delay:6s; animation-duration:13s;"></span>
-    <span class="ts-snowflake" style="left:34%; animation-delay:2s; animation-duration:10s;"></span>
-    <span class="ts-snowflake ts-snowflake-small" style="left:43%; animation-delay:4.5s; animation-duration:11s;"></span>
-    <span class="ts-snowflake" style="left:51%; animation-delay:0.5s; animation-duration:9.5s;"></span>
-    <span class="ts-snowflake ts-snowflake-small" style="left:59%; animation-delay:7s; animation-duration:14s;"></span>
-    <span class="ts-snowflake" style="left:67%; animation-delay:2.8s; animation-duration:8.5s;"></span>
-    <span class="ts-snowflake ts-snowflake-small" style="left:75%; animation-delay:5s; animation-duration:12.5s;"></span>
-    <span class="ts-snowflake" style="left:83%; animation-delay:1.5s; animation-duration:10.5s;"></span>
-    <span class="ts-snowflake ts-snowflake-small" style="left:91%; animation-delay:6.5s; animation-duration:13.5s;"></span>
-    <span class="ts-snowflake" style="left:97%; animation-delay:3s; animation-duration:9s;"></span>
+  <!-- Falling cherry-blossom petals -- small pixel-plus shapes drifting
+       diagonally at varied speeds, continuously respawning. -->
+  <div class="ts-petals" aria-hidden="true">
+    <span class="ts-petal" style="left:4%; animation-delay:2s; animation-duration:14s;"></span>
+    <span class="ts-petal ts-petal-small" style="left:9%; animation-delay:0s; animation-duration:11s;"></span>
+    <span class="ts-petal" style="left:16%; animation-delay:6s; animation-duration:16s;"></span>
+    <span class="ts-petal ts-petal-small" style="left:24%; animation-delay:3s; animation-duration:12s;"></span>
+    <span class="ts-petal" style="left:33%; animation-delay:8s; animation-duration:15s;"></span>
+    <span class="ts-petal ts-petal-small" style="left:41%; animation-delay:1.5s; animation-duration:13s;"></span>
+    <span class="ts-petal" style="left:49%; animation-delay:5s; animation-duration:17s;"></span>
+    <span class="ts-petal ts-petal-small" style="left:57%; animation-delay:2.5s; animation-duration:11s;"></span>
+    <span class="ts-petal" style="left:65%; animation-delay:7s; animation-duration:14s;"></span>
+    <span class="ts-petal ts-petal-small" style="left:72%; animation-delay:0.8s; animation-duration:12.5s;"></span>
+    <span class="ts-petal" style="left:80%; animation-delay:4.5s; animation-duration:16s;"></span>
+    <span class="ts-petal ts-petal-small" style="left:88%; animation-delay:6.5s; animation-duration:13s;"></span>
+    <span class="ts-petal" style="left:95%; animation-delay:3.5s; animation-duration:15s;"></span>
+    <span class="ts-petal ts-petal-small" style="left:60%; animation-delay:9s; animation-duration:18s;"></span>
+    <span class="ts-petal" style="left:20%; animation-delay:10s; animation-duration:19s;"></span>
   </div>
 
-  <div class="ts-particles" aria-hidden="true">
-    <span class="ts-particle ts-particle-back" style="left:4%; animation-delay:2s; animation-duration:19s;"></span>
-    <span class="ts-particle" style="left:6%; animation-delay:0s; animation-duration:14s;"></span>
-    <span class="ts-particle ts-particle-back" style="left:14%; animation-delay:8s; animation-duration:21s;"></span>
-    <span class="ts-particle" style="left:18%; animation-delay:3s; animation-duration:11s;"></span>
-    <span class="ts-particle" style="left:32%; animation-delay:1.5s; animation-duration:16s;"></span>
-    <span class="ts-particle ts-particle-back" style="left:40%; animation-delay:5.5s; animation-duration:20s;"></span>
-    <span class="ts-particle" style="left:47%; animation-delay:5s; animation-duration:12s;"></span>
-    <span class="ts-particle" style="left:58%; animation-delay:2s; animation-duration:15s;"></span>
-    <span class="ts-particle ts-particle-back" style="left:63%; animation-delay:9s; animation-duration:18s;"></span>
-    <span class="ts-particle" style="left:69%; animation-delay:6.5s; animation-duration:13s;"></span>
-    <span class="ts-particle" style="left:78%; animation-delay:0.8s; animation-duration:17s;"></span>
-    <span class="ts-particle ts-particle-back" style="left:83%; animation-delay:4.5s; animation-duration:22s;"></span>
-    <span class="ts-particle" style="left:88%; animation-delay:4s; animation-duration:11s;"></span>
-    <span class="ts-particle" style="left:95%; animation-delay:7s; animation-duration:14s;"></span>
-    <span class="ts-particle ts-particle-back" style="left:10%; animation-delay:6s; animation-duration:20s;"></span>
-    <span class="ts-particle" style="left:25%; animation-delay:2.5s; animation-duration:13s;"></span>
-    <span class="ts-particle ts-particle-back" style="left:37%; animation-delay:7.5s; animation-duration:22s;"></span>
-    <span class="ts-particle" style="left:53%; animation-delay:1s; animation-duration:15s;"></span>
-    <span class="ts-particle ts-particle-back" style="left:74%; animation-delay:5s; animation-duration:19s;"></span>
-    <span class="ts-particle" style="left:91%; animation-delay:3.5s; animation-duration:12s;"></span>
-  </div>
-
-  <!-- Floating blocky "chunks" -- ambient background texture in the empty
-       side margins, well clear of the centered title/menu column. -->
-  <div class="ts-chunks" aria-hidden="true">
-    <span class="ts-chunk" style="left:6%; top:20%; animation-duration:9s; animation-delay:0s;"></span>
-    <span class="ts-chunk ts-chunk-grass" style="left:11%; top:58%; animation-duration:11s; animation-delay:2.5s;"></span>
-    <span class="ts-chunk ts-chunk-dirt" style="left:4%; top:74%; animation-duration:8s; animation-delay:1.2s;"></span>
-    <span class="ts-chunk" style="right:7%; top:16%; animation-duration:10s; animation-delay:1.8s;"></span>
-    <span class="ts-chunk ts-chunk-dirt" style="right:12%; top:52%; animation-duration:9.5s; animation-delay:3.2s;"></span>
-    <span class="ts-chunk ts-chunk-grass" style="right:5%; top:70%; animation-duration:12s; animation-delay:0.6s;"></span>
-  </div>
-
-  <!-- Top-right: settings icon -- a real, working toggle (turns off the
-       ambient particle/splash motion, independent of the OS-level
-       prefers-reduced-motion setting, and remembers the choice). -->
-  <button type="button" class="ts-icon-btn ts-settings-btn" id="motion-toggle" aria-label="Toggle background motion" aria-pressed="false">
+  <!-- Top-right: settings button, opens the settings panel below. -->
+  <button type="button" class="ts-icon-btn ts-settings-btn" id="settings-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Open settings">
     <svg viewBox="0 0 16 16" class="ts-icon-svg" aria-hidden="true">
       <rect x="6" y="1" width="4" height="3" fill="currentColor"/>
       <rect x="6" y="12" width="4" height="3" fill="currentColor"/>
       <rect x="1" y="6" width="3" height="4" fill="currentColor"/>
       <rect x="12" y="6" width="3" height="4" fill="currentColor"/>
       <rect x="5" y="5" width="6" height="6" fill="currentColor"/>
-      <rect x="6.5" y="6.5" width="3" height="3" fill="var(--loading-panel)"/>
+      <rect x="6.5" y="6.5" width="3" height="3" fill="#737373"/>
     </svg>
   </button>
 
   <div class="ts-content">
     <div class="ts-title-block">
-      <h1 class="ts-title" data-text="Huy Nguyen">Huy Nguyen</h1>
-      <p class="ts-splash">[[PLACEHOLDER: splash text]]</p>
+      <h1 class="ts-title">HUY <span class="tt-creeper-wrap">N<svg class="tt-creeper-face" viewBox="0 0 8 8" aria-hidden="true"><rect x="1" y="1" width="2" height="2"/><rect x="5" y="1" width="2" height="2"/><rect x="2" y="4" width="1" height="1"/><rect x="3" y="5" width="2" height="2"/><rect x="5" y="4" width="1" height="1"/></svg></span>GUYEN</h1>
+      <p class="ts-splash">Software Engineer!</p>
     </div>
 
     <nav class="ts-menu" aria-label="Main navigation">
@@ -225,46 +199,78 @@
     </nav>
   </div>
 
-  <!-- Bottom-left: nametag, sprite, Connect-with-me button, copyright --
-       one clean stack, each element given real breathing room. -->
+  <!-- Bottom-left: nametag, sprite, Connect-with-me button, copyright. -->
   <div class="ts-player-corner">
-    <span class="ts-nametag">Huy Nguyen</span>
+    <span class="ts-nametag">Huy</span>
     <div class="ts-sprite" aria-hidden="true">
-      <div class="pf-head"></div>
-      <div class="pf-body"></div>
+      <div class="pf-head"><div class="pf-hair"></div></div>
+      <div class="pf-body"><div class="pf-shirt"></div></div>
       <div class="pf-arm pf-arm-l"></div>
       <div class="pf-arm pf-arm-r"></div>
       <div class="pf-leg pf-leg-l"></div>
       <div class="pf-leg pf-leg-r"></div>
+      <div class="pf-shoe pf-shoe-l"></div>
+      <div class="pf-shoe pf-shoe-r"></div>
     </div>
-    <a class="ts-linkedin-btn" href="[[PLACEHOLDER: LinkedIn URL]]">
-      <svg class="ts-linkedin-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/>
-      </svg>
+    <a class="ts-linkedin-btn" href="YOUR_LINKEDIN_URL">
+      <span class="ts-linkedin-icon-box" aria-hidden="true">
+        <svg class="ts-linkedin-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/>
+        </svg>
+      </span>
       Connect with me
     </a>
-    <p class="ts-copyright">&copy; 2026 Huy Nguyen. All rights reserved.</p>
+    <p class="ts-copyright">&copy; Huy Nguyen</p>
   </div>
 
   <!-- Bottom-right: version tag, opposite corner from the player stack. -->
   <p class="ts-version">v1.0.0</p>
 </header>
 
+<!-- Settings panel -- opened by the gear button above. A dim backdrop
+     (click to close) behind a small Minecraft-style panel with three
+     toggles, persisted to localStorage. -->
+<div class="settings-panel" id="settings-panel" hidden>
+  <button type="button" class="settings-backdrop" data-settings-close aria-label="Close settings"></button>
+  <div class="settings-box" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <h2 class="settings-title" id="settings-title" tabindex="-1">Settings</h2>
+    <div class="settings-row">
+      <span class="settings-label">Music</span>
+      <button type="button" class="settings-toggle" data-setting="music" aria-pressed="false">Off</button>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Sound FX</span>
+      <button type="button" class="settings-toggle" data-setting="sfx" aria-pressed="true">On</button>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Reduce Motion</span>
+      <button type="button" class="settings-toggle" data-setting="motion" aria-pressed="false">Off</button>
+    </div>
+    <button type="button" class="ts-back-btn" data-settings-close>&larr; Back</button>
+  </div>
+</div>
+<!-- No bundled music track (no royalty-free file was available to
+     include) -- src is left empty on purpose. Add one and the Music
+     toggle in Settings will play/pause/loop it immediately. -->
+<audio id="bg-music" loop preload="none"></audio>
+
 <!-- Full-screen swapped views. Hidden by default; JS shows one at a time
      and hides the titlescreen behind it. Each has its own Back button. -->
-<div class="view-panel" id="panel-about" data-panel="about" data-biome="Plains" hidden>
+<div class="view-panel" id="panel-about" data-panel="about" hidden>
   <div class="view-panel-inner">
     <button type="button" class="ts-back-btn" data-back>&larr; Back</button>
     <h2 class="section-title" tabindex="-1">About</h2>
     <div class="char-sheet">
       <div class="avatar-block" aria-hidden="true">
         <div class="pixel-figure">
-          <div class="pf-head"></div>
-          <div class="pf-body"></div>
+          <div class="pf-head"><div class="pf-hair"></div></div>
+          <div class="pf-body"><div class="pf-shirt"></div></div>
           <div class="pf-arm pf-arm-l"></div>
           <div class="pf-arm pf-arm-r"></div>
           <div class="pf-leg pf-leg-l"></div>
           <div class="pf-leg pf-leg-r"></div>
+          <div class="pf-shoe pf-shoe-l"></div>
+          <div class="pf-shoe pf-shoe-r"></div>
         </div>
         <span class="avatar-label">[[PLACEHOLDER: avatar/photo]]</span>
       </div>
@@ -278,7 +284,7 @@
   </div>
 </div>
 
-<div class="view-panel" id="panel-experience" data-panel="experience" data-biome="Mineshaft" hidden>
+<div class="view-panel" id="panel-experience" data-panel="experience" hidden>
   <div class="view-panel-inner">
     <button type="button" class="ts-back-btn" data-back>&larr; Back</button>
     <h2 class="section-title" tabindex="-1">Experience</h2>
@@ -310,7 +316,7 @@
   </div>
 </div>
 
-<div class="view-panel" id="panel-projects" data-panel="projects" data-biome="Village" hidden>
+<div class="view-panel" id="panel-projects" data-panel="projects" hidden>
   <div class="view-panel-inner">
     <button type="button" class="ts-back-btn" data-back>&larr; Back</button>
     <h2 class="section-title" tabindex="-1">Projects</h2>
@@ -367,6 +373,6 @@
 
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
-<script src="script.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

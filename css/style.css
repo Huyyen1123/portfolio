@@ -1,6 +1,4 @@
-/* ---- Tokens ----
-   Single deliberately-dark theme (a night-sky/deep-cave palette) --
-   no light mode, matching the Minecraft-at-night framing throughout. */
+/* ---- Tokens ---- */
 :root{
   --void: #0F0F12;
   --dirt: #6B4A32;
@@ -11,14 +9,29 @@
   --offwhite: #E7E4DA;
   /* Loading-screen-only accents -- red, distinct from --gold which stays
      the accent color everywhere else on the site (achievements, section
-     titles, nametag border, etc). Two steps: a deep dark red for the
-     logo panel fill, a brighter red for text/bar-fill on top of it. */
+     titles, nametag border, etc). */
   --loading-logo-panel: #7A1F1F;
   --loading-accent: #E74C3C;
-  /* A darker step of --grass, specifically for the loading screen's solid
-     panel -- the literal --grass value doesn't hold AA text contrast for
-     offwhite/white at normal sizes (checked: 3.14:1 / 3.99:1), this does. */
   --loading-panel: #33501f;
+
+  /* Landing-page panorama palette -- cherry-blossom dusk, matching the
+     reference screenshot's composition (not a real screenshot, an
+     original stylized scene built from CSS/SVG shapes). */
+  --sky-top: #171a3d;
+  --sky-upper: #322f79;
+  --sky-mid: #7a4a8c;
+  --sky-rose: #c96a86;
+  --sky-horizon: #e8935c;
+  --sun-core: #fff6d8;
+  --sun-mid: #ffd27a;
+  --mountain: #2b2440;
+  --hill-far: #3d5f2f;
+  --hill-near: #2c471f;
+  --river: #4d84b8;
+  --sakura-light: #e78fc0;
+  --sakura-dark: #b85f96;
+  --sakura-trunk: #2e1e14;
+  --title-ink: #141414;
 
   --font-display: 'Press Start 2P', monospace;
   --font-body: 'IBM Plex Mono', ui-monospace, monospace;
@@ -28,9 +41,9 @@
 
 *{ box-sizing: border-box; }
 
-/* The whole app is a single fixed-viewport shell now, not a scrolling
-   page -- About/Experience/Projects are swapped full-screen panels, not
-   sections you scroll down to. */
+/* The whole app is a single fixed-viewport shell -- About/Experience/
+   Projects are swapped full-screen panels, not sections you scroll to.
+   No white margins, no scrolling, ever. */
 html, body{ height: 100%; overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce){
@@ -40,12 +53,13 @@ html, body{ height: 100%; overflow: hidden; }
     transition-duration: 0.001ms !important;
   }
 }
-/* The settings icon offers the same thing as a manual, persistent choice
-   (independent of the OS setting) -- see script.js. */
-html.motion-off .ts-particle,
-html.motion-off .ts-chunk,
-html.motion-off .ts-snowflake,
-html.motion-off .ts-splash{
+/* The settings panel's "Reduce Motion" toggle offers the same thing as a
+   manual, persistent choice, independent of the OS-level setting. */
+html.motion-off .ts-petal,
+html.motion-off .ts-splash,
+html.motion-off .ts-parallax,
+html.motion-off .ts-sprite,
+html.motion-off .ts-sun{
   animation: none !important;
 }
 
@@ -59,27 +73,6 @@ body{
 
 a{ color: inherit; }
 button{ font: inherit; }
-
-/* ---- Debug HUD (F3-style corner readout) ---- */
-#debug-hud{
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  z-index: 80;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 6px 8px;
-  background: rgba(15, 15, 18, 0.55);
-  font-size: 0.62rem;
-  line-height: 1.5;
-  color: var(--offwhite);
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
-  user-select: none;
-}
-#debug-hud p{ margin: 0; }
-#debug-hud span{ color: var(--diamond); }
 
 /* ---- Loading screen ---- */
 .loading-screen{
@@ -118,10 +111,6 @@ button{ font: inherit; }
   letter-spacing: 0.25em;
 }
 
-/* Pulled out of the centered flex column and pinned near the bottom of
-   the screen, a bit above the copyright/version footer line, instead of
-   sitting directly under the logo -- the logo alone now centers on its
-   own in the remaining flex flow. */
 .loading-bar-wrap{
   position: absolute;
   left: 50%;
@@ -145,9 +134,6 @@ button{ font: inherit; }
   height: 100%;
   width: 0%;
   background: var(--loading-accent);
-  /* 2.1s so three status lines (see .loading-label / script.js) each get
-     an even 700ms beat -- a short paced sequence rather than one static
-     line sitting next to the bar the whole time. */
   animation: loading-fill 2.1s linear forwards;
 }
 @keyframes loading-fill{ to{ width: 100%; } }
@@ -181,157 +167,226 @@ button{ font: inherit; }
 .titlescreen.visible{ opacity: 1; }
 .titlescreen.ts-hidden{ display: none; }
 
+/* ---- Background panorama: sky -> sun -> distant mountains -> river ->
+   rolling hills -> cherry-blossom tree -> foreground vegetation. All
+   original CSS/SVG shapes -- no traced screenshots, no Mojang assets. ---- */
 .ts-sky{
   position: absolute;
   inset: 0;
   z-index: 0;
-  /* Alpenglow sunset: deep indigo at the top through violet and dusty
-     rose to a warm gold horizon. */
-  background: linear-gradient(180deg, #171a41 0%, #322f79 22%, #7a4a8c 42%, #c96a86 60%, #e8935c 80%, #f5c26a 100%);
+  background: linear-gradient(180deg,
+    var(--sky-top) 0%, var(--sky-upper) 26%, var(--sky-mid) 46%,
+    var(--sky-rose) 64%, var(--sky-horizon) 82%, #f5c26a 100%);
+}
+.ts-sun{
+  position: absolute;
+  right: 19%;
+  bottom: 29vh;
+  width: min(11vw, 140px);
+  height: min(11vw, 140px);
+  border-radius: 50%;
+  z-index: 0;
+  background: radial-gradient(circle, var(--sun-core) 0%, var(--sun-mid) 42%, rgba(255, 178, 90, 0) 76%);
+  animation: sun-glow 6s ease-in-out infinite;
+}
+@keyframes sun-glow{
+  0%, 100%{ opacity: 0.9; }
+  50%{ opacity: 1; }
 }
 
-/* Three silhouette rows for depth: distant snow peaks furthest back
-   (pale, catching the sunset light), mid-ground darker and smaller-scale
-   in front of that, front row lighter and larger, nearest of all. */
+/* Everything that pans/zooms together lives inside .ts-parallax -- an
+   extremely slow drift-and-settle sway (not a true infinite tiling pan,
+   which would need seamless source art; this reads the same way at menu
+   scale: slow, continuous, no visible reset/jump, because it reverses
+   smoothly via `alternate` instead of snapping back to start). */
+.ts-parallax{
+  position: absolute;
+  inset: -4% -6%;
+  z-index: 1;
+  animation: panorama-drift 75s ease-in-out infinite alternate;
+}
+@keyframes panorama-drift{
+  0%{ transform: translateX(-1.4%) scale(1.015); }
+  100%{ transform: translateX(1.4%) scale(1.035); }
+}
+
 .ts-skyline{ position: absolute; bottom: 0; left: 0; width: 100%; }
 .ts-skyline-svg{ width: 100%; display: block; }
 .ts-skyline-svg rect{ fill: currentColor; }
 
-.ts-skyline-snowcaps{
-  z-index: 0;
-  bottom: 10vh;
+.ts-skyline-mountains{
+  bottom: 8vh;
   opacity: 0.55;
-  color: #f2d9c9;
+  color: var(--mountain);
 }
-.ts-skyline-snowcaps .ts-skyline-svg{ height: 28vh; }
+.ts-skyline-mountains .ts-skyline-svg{ height: 26vh; }
 
-.ts-skyline-mid{
+.ts-river{
+  position: absolute;
+  right: 6%;
+  bottom: 15vh;
+  width: 40%;
+  height: 5vh;
+  background: linear-gradient(115deg, var(--river) 0%, #8cc1e8 45%, var(--river) 100%);
+  opacity: 0.65;
+  transform: rotate(-4deg) skewY(-3deg);
+}
+
+.ts-skyline-hills-far{
+  bottom: 5vh;
+  opacity: 0.75;
+  color: var(--hill-far);
+}
+.ts-skyline-hills-far .ts-skyline-svg{ height: 16vh; }
+
+.ts-skyline-hills-near{
+  bottom: 0;
+  opacity: 0.9;
+  color: var(--hill-near);
+}
+.ts-skyline-hills-near .ts-skyline-svg{ height: 22vh; }
+
+/* Large cherry-blossom tree, left side, top to bottom -- the dominant
+   foreground shape, matching the reference's left-side canopy. */
+.ts-sakura-tree{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
   z-index: 1;
-  bottom: 6vh;
-  opacity: 0.5;
-  color: #0f0e1c;
 }
-.ts-skyline-mid .ts-skyline-svg{ height: 16vh; }
+.ts-sakura-svg{ width: 100%; height: 100%; display: block; }
 
-.ts-skyline-front{
-  z-index: 2;
-  opacity: 0.6;
-  color: #1c1930;
+.ts-foreground{
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 9vh;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(44, 71, 31, 0) 0%, var(--hill-near) 60%);
 }
-.ts-skyline-front .ts-skyline-svg{ height: 22vh; }
+.ts-foreground-flowers{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
 
 .ts-overlay{
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 40%, transparent 45%, rgba(0, 0, 0, 0.35) 100%);
+  background: radial-gradient(ellipse at 50% 42%, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.5) 100%);
 }
 
-/* Falling snow -- straight down with a slight rightward drift, unlike
-   the particles' upward float. */
-.ts-snow{ position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
-.ts-snowflake{
+/* ---- Falling cherry-blossom petals ---- */
+.ts-petals{ position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.ts-petal{
   position: absolute;
-  top: -8px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--offwhite);
+  top: -10px;
+  width: 8px;
+  height: 8px;
+  background: var(--sakura-light);
+  clip-path: polygon(50% 0%, 68% 32%, 100% 50%, 68% 68%, 50% 100%, 32% 68%, 0% 50%, 32% 32%);
   opacity: 0;
-  animation-name: snow-fall;
+  animation-name: petal-drift;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
-.ts-snowflake-small{ width: 3px; height: 3px; }
-@keyframes snow-fall{
-  0%{ transform: translate(0, 0); opacity: 0; }
-  6%{ opacity: 0.85; }
-  94%{ opacity: 0.85; }
-  100%{ transform: translate(20px, 108vh); opacity: 0; }
+.ts-petal-small{ width: 5px; height: 5px; background: #f4c9e3; }
+@keyframes petal-drift{
+  0%{ transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  8%{ opacity: 0.85; }
+  92%{ opacity: 0.85; }
+  100%{ transform: translate(70px, 108vh) rotate(320deg); opacity: 0; }
 }
 
-.ts-particles{ position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
-.ts-particle{
-  position: absolute;
-  top: -6px;
-  width: 4px;
-  height: 4px;
-  background: var(--gold);
-  opacity: 0;
-  animation-name: particle-drift;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-.ts-particle-back{
-  width: 2px;
-  height: 2px;
-  background: var(--offwhite);
-}
-@keyframes particle-drift{
-  0%{ transform: translate(0, 0); opacity: 0; }
-  8%{ opacity: 0.55; }
-  92%{ opacity: 0.55; }
-  100%{ transform: translate(-24px, 108vh); opacity: 0; }
-}
-.ts-particle-back{ animation-name: particle-drift-back; }
-@keyframes particle-drift-back{
-  0%{ transform: translate(0, 0); opacity: 0; }
-  8%{ opacity: 0.3; }
-  92%{ opacity: 0.3; }
-  100%{ transform: translate(-14px, 108vh); opacity: 0; }
-}
-
-/* Ambient floating "chunks" -- small blocky cubes bobbing slowly in the
-   empty side margins, at low opacity. Background texture only: kept out
-   of the centered title/menu column so nothing competes with it. */
-.ts-chunks{ position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
-.ts-chunk{
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  opacity: 0.16;
-  animation-name: chunk-drift;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  /* Two-tone diagonal fill reads as a tiny voxel cube (lit face / shaded
-     face) rather than a flat square. */
-  background: linear-gradient(135deg, var(--stone) 0%, var(--stone) 50%, #4a4a4e 50%, #4a4a4e 100%);
-}
-.ts-chunk-grass{ background: linear-gradient(135deg, var(--grass) 0%, var(--grass) 50%, #3f6b28 50%, #3f6b28 100%); }
-.ts-chunk-dirt{ background: linear-gradient(135deg, #8a6440 0%, #8a6440 50%, var(--dirt) 50%, var(--dirt) 100%); }
-@keyframes chunk-drift{
-  0%, 100%{ transform: translateY(0) rotate(0deg); }
-  50%{ transform: translateY(-20px) rotate(14deg); }
-}
-
-/* ---- Top-right settings/motion-toggle icon ---- */
+/* ---- Top-right settings button + panel ---- */
 .ts-icon-btn{
   position: absolute;
   top: 16px;
   right: 16px;
   z-index: 6;
-  width: 38px;
-  height: 38px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #6a6a6a 0%, #59595a 45%, #4f4f4f 60%, #464646 100%);
-  border: 2px solid #2e2e2e;
-  border-top-color: #7d7d7d;
-  border-left-color: #7d7d7d;
-  box-shadow: 0 2px 0 #2e2e2e;
-  color: var(--offwhite);
+  background: linear-gradient(180deg, #8c8c8c 0%, #8c8c8c 12%, #737373 12%, #737373 84%, #5e5e5e 84%, #5e5e5e 100%);
+  border: 2px solid #1a1a1a;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), 0 2px 0 #1a1a1a;
+  color: #f2f0ea;
   cursor: pointer;
-  transition: filter 120ms var(--ease), box-shadow 120ms var(--ease);
+  transition: filter 120ms var(--ease), transform 80ms var(--ease);
 }
-.ts-icon-btn:hover, .ts-icon-btn:focus-visible{
-  filter: brightness(1.18);
-  box-shadow: 0 2px 0 #2e2e2e, 0 0 12px 1px var(--diamond);
-}
+.ts-icon-btn:hover, .ts-icon-btn:focus-visible{ filter: brightness(1.18); }
 .ts-icon-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
-.ts-icon-btn[aria-pressed="true"]{ color: var(--stone); }
-.ts-icon-svg{ width: 18px; height: 18px; }
+.ts-icon-btn:active{ filter: brightness(0.88); transform: translateY(2px); }
+.ts-icon-svg{ width: 26px; height: 26px; }
+
+.settings-panel{ position: fixed; inset: 0; z-index: 95; }
+.settings-panel[hidden]{ display: none; }
+.settings-backdrop{
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.settings-box{
+  position: relative;
+  z-index: 1;
+  margin: 10vh auto 0;
+  width: min(360px, 88vw);
+  background: linear-gradient(180deg, #8c8c8c 0%, #8c8c8c 6%, #6e6e6e 6%, #6e6e6e 94%, #5a5a5a 94%, #5a5a5a 100%);
+  border: 3px solid #1a1a1a;
+  padding: 22px 22px 20px;
+}
+.settings-title{
+  margin: 0 0 18px;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--offwhite);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+.settings-title:focus{ outline: 2px solid var(--diamond); outline-offset: 4px; }
+.settings-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+}
+.settings-row:first-of-type{ border-top: none; }
+.settings-label{
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  color: var(--offwhite);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+}
+.settings-toggle{
+  min-width: 76px;
+  padding: 8px 10px;
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  color: #ffffff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, #6fae52 0%, #5a9640 100%);
+  border: 2px solid #1a1a1a;
+  cursor: pointer;
+  transition: filter 120ms var(--ease), transform 80ms var(--ease);
+}
+.settings-toggle[aria-pressed="false"]{ background: linear-gradient(180deg, #9a9a9a 0%, #767676 100%); }
+.settings-toggle:hover{ filter: brightness(1.15); }
+.settings-toggle:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
+.settings-toggle:active{ transform: translateY(1px); }
+.settings-box .ts-back-btn{ margin: 18px 0 0; width: 100%; text-align: center; }
 
 /* ---- Title + splash + menu ---- */
 .ts-content{
@@ -343,104 +398,91 @@ button{ font: inherit; }
   align-items: center;
 }
 
-.ts-title-block{ margin-bottom: 34px; position: relative; }
+.ts-title-block{ margin-bottom: 30px; position: relative; }
 .ts-title{
   margin: 0;
   font-family: var(--font-display);
-  /* Scales with viewport width up to a large 4.6rem cap -- at 1440px
-     that resolves to ~4.6rem/73.6px, comfortably under one line's worth
-     of "Huy Nguyen" at this font's ~0.62em average glyph advance
-     (roughly 460px, well inside the viewport). Tighter tracking (0rem,
-     down from 0.02em) buys a little extra room for the longer name. */
-  font-size: clamp(1.6rem, 5.8vw, 4.6rem);
+  font-size: clamp(2.1rem, 10vw, 8.6rem);
   color: #ffffff;
   letter-spacing: 0;
   white-space: nowrap;
-  /* Chiseled/carved block look: hard-edged offset layers only, no blur,
-     no gradient -- each step a darker, flat wood tone. */
+  /* Chunky 3D block-letter look: a thin black outline all around the
+     front face (text-stroke) plus a stacked 1px-step text-shadow trail
+     that reads as a solid dark extrusion, not a striped repeat. */
+  -webkit-text-stroke: 3px var(--title-ink);
   text-shadow:
-    3px 3px 0 #7a5636,
-    6px 6px 0 #6b4a32,
-    9px 9px 0 #5c3f2b,
-    12px 12px 0 #4a3221;
+    1px 1px 0 #333, 2px 2px 0 #303030, 3px 3px 0 #2c2c2c, 4px 4px 0 #282828,
+    5px 5px 0 #232323, 6px 6px 0 #1e1e1e, 7px 7px 0 #191919, 8px 8px 0 #141414,
+    9px 9px 0 #0f0f0f, 10px 10px 0 #0a0a0a;
 }
-/* Sits fully above the title (bottom: 100% of the title-block, plus an
-   8px gap) instead of overlapping it -- a short single-line badge
-   tucked to the upper-right, rotated like a tilted tag. Its own
-   font-size is a separate, smaller clamp so it never grows wide enough
-   to threaten the viewport edge even though it no longer wraps. */
+.tt-creeper-wrap{ position: relative; display: inline-block; }
+.tt-creeper-face{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52%;
+  height: 52%;
+  transform: translate(-50%, -50%);
+  fill: var(--title-ink);
+  pointer-events: none;
+}
+
+/* Sits fully above the title, tucked to the upper-right and rotated like
+   a tilted tag, overlapping the title's lower-right corner. */
 .ts-splash{
   position: absolute;
-  bottom: calc(100% + 8px);
-  right: -4px;
+  bottom: 6%;
+  right: -6%;
   white-space: nowrap;
   text-align: right;
   font-family: var(--font-display);
-  font-size: clamp(0.6rem, 1.6vw, 0.85rem);
+  font-size: clamp(0.7rem, 2vw, 1.15rem);
   color: var(--gold);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
-  transform: rotate(-14deg) scale(1);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
+  transform: rotate(-17deg) scale(1);
   transform-origin: bottom right;
   animation: splash-pulse 1.6s ease-in-out infinite;
 }
 @keyframes splash-pulse{
-  0%, 100%{ transform: rotate(-14deg) scale(1); }
-  50%{ transform: rotate(-14deg) scale(1.12); }
+  0%, 100%{ transform: rotate(-17deg) scale(1); }
+  50%{ transform: rotate(-17deg) scale(1.04); }
 }
 
 .ts-menu{
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: min(560px, 88vw);
+  gap: 3px;
+  width: min(680px, 44vw);
+  min-width: 320px;
 }
-/* Button bevel technique adapted from the reference project: a flat
-   background plus three stacked inset box-shadows (light top-left,
-   light top-right, dark bottom) instead of a gradient fill -- reads as
-   a chunkier, more authentic pixel-game button. The reference itself
-   has no hover/active states at all; ours are additions, built from the
-   same box-shadow vocabulary rather than a filter/glow effect. */
+/* Banded gradient mimicking the vanilla button texture (lighter top
+   band, mid band, darker bottom band) plus crisp edge highlight/shadow
+   lines and a thick dark border -- sharp square corners throughout. */
 .ts-menu-btn{
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  min-height: 71px;
   text-align: center;
   text-decoration: none;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-family: var(--font-display);
+  font-size: clamp(0.7rem, 1.4vw, 0.95rem);
   color: var(--offwhite);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-  padding: 15px 20px;
-  background: #5c5c5c;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  padding: 10px 20px;
+  background: linear-gradient(180deg,
+    #8c8c8c 0%, #8c8c8c 10%, #737373 10%, #737373 84%, #5e5e5e 84%, #5e5e5e 100%);
   border: 2px solid #1a1a1a;
-  box-shadow:
-    inset 3px 3px 0 rgba(255, 255, 255, 0.45),
-    inset -3px 3px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -6px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), inset 0 -3px 0 rgba(0, 0, 0, 0.35);
   cursor: pointer;
-  transition: background 120ms var(--ease), box-shadow 120ms var(--ease);
+  transition: filter 120ms var(--ease), transform 80ms var(--ease);
 }
-.ts-menu-btn:hover, .ts-menu-btn:focus-visible{
-  background: #686868;
-  box-shadow:
-    inset 3px 3px 0 rgba(255, 255, 255, 0.55),
-    inset -3px 3px 0 rgba(255, 255, 255, 0.55),
-    inset 0 -6px 0 rgba(0, 0, 0, 0.5),
-    0 0 14px 1px var(--diamond);
-}
+.ts-menu-btn:hover, .ts-menu-btn:focus-visible{ filter: brightness(1.15); }
 .ts-menu-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
-.ts-menu-btn:active{
-  /* Bevel inverts on press -- dark top, light bottom -- to read as
-     physically pushed in, not just recolored. */
-  background: #4a4a4a;
-  box-shadow:
-    inset 3px 3px 0 rgba(0, 0, 0, 0.45),
-    inset -3px 3px 0 rgba(0, 0, 0, 0.45),
-    inset 0 3px 0 rgba(255, 255, 255, 0.3);
-}
+.ts-menu-btn:active{ filter: brightness(0.85); transform: translateY(2px); }
 
-/* ---- Bottom-left: nametag, sprite, Connect-with-me, copyright --
-   one clean stack, real gaps between every element ---- */
+/* ---- Bottom-left: nametag, sprite, Connect-with-me, copyright ---- */
 .ts-player-corner{
   position: absolute;
   bottom: 16px;
@@ -449,48 +491,75 @@ button{ font: inherit; }
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 41px; /* scaled up with .ts-sprite so the nametag/button keep the same visual spacing relative to the bigger sprite */
+  gap: 14px;
 }
 .ts-nametag{
   display: inline-block;
   background: rgba(15, 15, 18, 0.75);
   border: 1px solid var(--gold);
   color: var(--offwhite);
-  font-size: 0.78rem; /* +30% over the previous 0.6rem */
-  padding: 3px 8px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  padding: 4px 8px;
 }
 .ts-sprite{
   position: relative;
   width: 80px;
   height: 110px;
-  transform: scale(1.45); /* ~1.7x the previous 0.85 -- within the requested 1.5-2x bump */
-  transform-origin: top left;
-  /* scale > 1 means the rendered sprite now overflows its own 110px
-     layout box, so (unlike the earlier shrink) this margin is POSITIVE:
-     it reserves the extra visual height so the button below doesn't
-     collide with it. +(110 * (1.45 - 1)) */
-  margin-bottom: 49.5px;
+  animation: sprite-idle 3.2s ease-in-out infinite;
 }
+@keyframes sprite-idle{
+  0%, 100%{ transform: translateY(0); }
+  50%{ transform: translateY(-3px); }
+}
+.pf-head{ position: absolute; top: 0; left: 24px; width: 32px; height: 32px; background: #e8b48c; transition: transform 120ms linear; }
+.pf-hair{ position: absolute; top: 0; left: 0; width: 100%; height: 13px; background: #241a14; }
+.pf-body{ position: absolute; top: 32px; left: 20px; width: 40px; height: 44px; background: #1c1c1c; }
+.pf-shirt{ position: absolute; top: 0; left: 9px; right: 9px; bottom: 8px; background: #f2f0ea; }
+.pf-arm{ position: absolute; top: 32px; width: 12px; height: 44px; background: #1c1c1c; }
+.pf-arm-l{ left: 8px; }
+.pf-arm-r{ left: 60px; }
+.pf-leg{ position: absolute; top: 76px; width: 16px; height: 30px; background: #141414; }
+.pf-leg-l{ left: 20px; }
+.pf-leg-r{ left: 44px; }
+.pf-shoe{ position: absolute; top: 106px; width: 16px; height: 4px; background: #f2f0ea; }
+.pf-shoe-l{ left: 20px; }
+.pf-shoe-r{ left: 44px; }
+
 .ts-linkedin-btn{
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(15, 15, 18, 0.7);
-  border: 1px solid var(--diamond);
+  gap: 8px;
+  background: linear-gradient(180deg, #8c8c8c 0%, #8c8c8c 12%, #737373 12%, #737373 84%, #5e5e5e 84%, #5e5e5e 100%);
+  border: 2px solid #1a1a1a;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.3);
   color: var(--offwhite);
   text-decoration: none;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 8px 12px;
-  transition: background 150ms var(--ease);
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+  padding: 10px 14px;
+  transition: filter 120ms var(--ease), transform 80ms var(--ease);
 }
-.ts-linkedin-btn:hover{ background: rgba(76, 211, 211, 0.18); }
+.ts-linkedin-btn:hover{ filter: brightness(1.15); }
 .ts-linkedin-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
-.ts-linkedin-icon{ width: 14px; height: 14px; fill: var(--diamond); flex-shrink: 0; }
+.ts-linkedin-btn:active{ filter: brightness(0.85); transform: translateY(2px); }
+.ts-linkedin-icon-box{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: #0a66c2;
+  flex-shrink: 0;
+}
+.ts-linkedin-icon{ width: 12px; height: 12px; fill: #ffffff; }
 .ts-copyright{
   margin: 0;
-  font-size: 0.62rem;
-  color: rgba(231, 228, 218, 0.5);
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
 }
 
 /* ---- Bottom-right: version tag, opposite corner ---- */
@@ -500,18 +569,21 @@ button{ font: inherit; }
   right: 20px;
   z-index: 5;
   margin: 0;
-  font-size: 0.62rem;
-  color: rgba(231, 228, 218, 0.5);
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
 }
 
 /* Shorter viewports (e.g. 1280x720): tighten vertical rhythm so nothing
    in the corner stacks or the centered content collides. */
 @media (max-height: 760px){
-  .ts-title-block{ margin-bottom: 22px; }
-  .ts-menu{ gap: 8px; }
-  .ts-menu-btn{ padding: 11px 20px; }
-  .ts-player-corner{ gap: 22px; }
-  .ts-sprite{ transform: scale(1.1); margin-bottom: 11px; } /* +(110 * (1.1 - 1)); ~1.7x the previous 0.65, tested to still clear the footer at 1280x720 */
+  .ts-title-block{ margin-bottom: 18px; }
+  .ts-title{ font-size: clamp(1.8rem, 8.5vw, 6.4rem); }
+  .ts-menu{ gap: 3px; }
+  .ts-menu-btn{ min-height: 52px; padding: 6px 20px; }
+  .ts-player-corner{ gap: 8px; }
+  .ts-sprite{ transform: scale(0.75); transform-origin: bottom left; }
 }
 
 /* ---- Full-screen swapped panels (About / Experience / Projects) ---- */
@@ -569,9 +641,6 @@ button{ font: inherit; }
   color: var(--gold);
   margin: 0 0 32px;
 }
-/* Focused programmatically on panel open (see script.js) rather than via
-   Tab, so :focus rather than :focus-visible -- same diamond-outline
-   language used on every other interactive element in the site. */
 .section-title:focus{ outline: 2px solid var(--diamond); outline-offset: 6px; }
 .section-hint{ font-size: 0.78rem; color: var(--stone); margin: -20px 0 24px; }
 
@@ -592,14 +661,6 @@ button{ font: inherit; }
   gap: 12px;
 }
 .pixel-figure{ position: relative; width: 80px; height: 110px; }
-.pf-head{ position: absolute; top: 0; left: 24px; width: 32px; height: 32px; background: var(--stone); }
-.pf-body{ position: absolute; top: 32px; left: 20px; width: 40px; height: 44px; background: var(--dirt); }
-.pf-arm{ position: absolute; top: 32px; width: 12px; height: 44px; background: var(--stone); }
-.pf-arm-l{ left: 8px; }
-.pf-arm-r{ left: 60px; }
-.pf-leg{ position: absolute; top: 76px; width: 16px; height: 34px; background: #38383e; }
-.pf-leg-l{ left: 20px; }
-.pf-leg-r{ left: 44px; }
 .avatar-label{
   font-size: 0.62rem;
   color: var(--stone);
@@ -717,10 +778,6 @@ button{ font: inherit; }
   border-color: var(--diamond);
   background: rgba(76, 211, 211, 0.08);
 }
-/* .inv-trigger is the real interactive element (a <button>); .inv-tooltip
-   is its sibling, not its child, specifically so the "view repo" link
-   inside the tooltip is never nested inside a <button> -- a button
-   containing a link is invalid HTML and unpredictable for a11y. */
 .inv-trigger{
   background: none;
   border: none;
@@ -785,6 +842,7 @@ button{ font: inherit; }
   .view-panel-inner{ padding: 60px 16px 40px; }
   .char-sheet{ flex-direction: column; }
   .inventory-grid{ grid-template-columns: repeat(2, 1fr); max-width: 280px; }
-  .ts-menu{ width: min(400px, 92vw); }
+  .ts-menu{ width: min(400px, 92vw); min-width: 0; }
   .loading-logo{ padding: 24px 32px; }
+  .ts-title{ font-size: clamp(1.6rem, 11vw, 3.4rem); }
 }
