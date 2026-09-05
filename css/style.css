@@ -177,28 +177,22 @@ button{ font: inherit; }
 .titlescreen.ts-hidden{ display: none; }
 
 /* ---- Background: a single panorama IMAGE, not procedural CSS art ----
-   assets/images/background.png -- not bundled yet, so background-color
-   is the fallback: if that file is missing, the page just shows a
-   plain dark screen, silently, with no visible text or graphic of any
-   kind. Drop the real file in at that path and it displays
-   automatically, no code change needed. CSS here only positions,
-   sizes, and animates the layer -- it doesn't draw the scene. */
+   assets/images/background.png -- background-color is only a fallback
+   for the moment that file is missing (still true as of this edit; the
+   folder is empty on disk here, so nothing image-related renders yet
+   at all, just this plain dark color, silently). No animation yet --
+   static image only, per instruction; movement comes in a later pass. */
 .ts-bg{
   position: fixed;
-  inset: -3%;
-  width: 106%;
-  height: 106%;
-  z-index: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -10;
   background-color: var(--void);
   background-image: url('../assets/images/background.png');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
-  animation: panoramaMove 20s ease-in-out infinite alternate;
-}
-@keyframes panoramaMove{
-  from{ transform: scale(1.03) translateX(-0.5%); }
-  to{ transform: scale(1.06) translateX(0.5%); }
 }
 
 .ts-overlay{
@@ -206,12 +200,9 @@ button{ font: inherit; }
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  /* Flat cinematic darkening (the reference's dim-but-legible look)
-     layered under a light edge vignette -- keeps the scenery visible
-     while giving the foreground UI enough contrast to read clearly. */
-  background:
-    radial-gradient(ellipse at 50% 45%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.28) 100%),
-    rgba(0, 0, 0, 0.3);
+  /* Kept light on purpose -- the background image needs to stay
+     clearly visible. Raise this only if legibility actually needs it. */
+  background: rgba(0, 0, 0, 0.15);
 }
 
 /* ---- Falling cherry-blossom petals ---- */
