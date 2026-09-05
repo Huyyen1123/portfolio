@@ -28,11 +28,11 @@
 </div>
 
 <header class="titlescreen" id="titlescreen">
-  <!-- Background: a single detailed panorama image (not procedural CSS
-       art) -- see assets/images/background.jpg. No real image was
-       available to bundle, so that file is a clearly-marked placeholder
-       card; drop a real Minecraft cherry-blossom panorama screenshot in
-       at that same path and this layer picks it up automatically. -->
+  <!-- Background: a single panorama image, not procedural CSS art. No
+       file is bundled yet (assets/images/background.png) -- until it's
+       added, .ts-bg's CSS background-color fallback shows a plain dark
+       screen, silently. Drop the real file in at that path and it
+       displays automatically, no code change needed. -->
   <div class="ts-bg" aria-hidden="true"></div>
   <div class="ts-overlay" aria-hidden="true"></div>
 
@@ -87,12 +87,12 @@
         <defs>
           <text id="tt-glyphs" x="500" y="150" text-anchor="middle">HUY NGUYEN</text>
         </defs>
-        <use href="#tt-glyphs" x="12" y="14" class="tt-extrude"/>
-        <use href="#tt-glyphs" x="10" y="11.5" class="tt-extrude"/>
-        <use href="#tt-glyphs" x="8" y="9" class="tt-extrude"/>
-        <use href="#tt-glyphs" x="6" y="6.5" class="tt-extrude"/>
-        <use href="#tt-glyphs" x="4" y="4" class="tt-extrude"/>
-        <use href="#tt-glyphs" x="2" y="1.5" class="tt-extrude"/>
+        <use href="#tt-glyphs" x="15" y="17" class="tt-extrude-6"/>
+        <use href="#tt-glyphs" x="12.5" y="14.5" class="tt-extrude-5"/>
+        <use href="#tt-glyphs" x="10" y="11.5" class="tt-extrude-4"/>
+        <use href="#tt-glyphs" x="7.5" y="8.5" class="tt-extrude-3"/>
+        <use href="#tt-glyphs" x="5" y="6" class="tt-extrude-2"/>
+        <use href="#tt-glyphs" x="2.5" y="3" class="tt-extrude-1"/>
         <use href="#tt-glyphs" class="tt-face"/>
       </svg>
       <p class="ts-splash">Software Engineer!</p>

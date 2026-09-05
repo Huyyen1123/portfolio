@@ -163,7 +163,11 @@ button{ font: inherit; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* Top-anchored with a fixed vh offset instead of pure centering --
+     puts the logo/menu block a bit higher, closer together, matching
+     the reference's composition instead of dead-center + wide gap. */
+  justify-content: flex-start;
+  padding-top: 17vh;
   text-align: center;
   opacity: 0;
   transition: opacity 600ms var(--ease);
@@ -173,25 +177,28 @@ button{ font: inherit; }
 .titlescreen.ts-hidden{ display: none; }
 
 /* ---- Background: a single panorama IMAGE, not procedural CSS art ----
-   See assets/images/background.jpg (a clearly-marked placeholder card
-   until a real Minecraft screenshot is dropped in at that path). CSS
-   here only positions, sizes, and animates it -- it doesn't draw the
-   scene. A slow scale+pan sway stands in for true infinite panning
-   (which needs seamlessly-tileable source art); it reverses smoothly
-   via `alternate` so there's never a visible reset/jump. */
+   assets/images/background.png -- not bundled yet, so background-color
+   is the fallback: if that file is missing, the page just shows a
+   plain dark screen, silently, with no visible text or graphic of any
+   kind. Drop the real file in at that path and it displays
+   automatically, no code change needed. CSS here only positions,
+   sizes, and animates the layer -- it doesn't draw the scene. */
 .ts-bg{
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  inset: -3%;
+  width: 106%;
+  height: 106%;
   z-index: 0;
-  background-image: url('../assets/images/background.jpg');
+  background-color: var(--void);
+  background-image: url('../assets/images/background.png');
   background-size: cover;
-  background-position: center;
-  animation: panorama 70s ease-in-out infinite alternate;
+  background-position: center center;
+  background-repeat: no-repeat;
+  animation: panoramaMove 20s ease-in-out infinite alternate;
 }
-@keyframes panorama{
-  0%{ transform: scale(1.06) translateX(-1%); }
-  50%{ transform: scale(1.09) translateX(1%); }
-  100%{ transform: scale(1.06) translateX(-1%); }
+@keyframes panoramaMove{
+  from{ transform: scale(1.03) translateX(-0.5%); }
+  to{ transform: scale(1.06) translateX(0.5%); }
 }
 
 .ts-overlay{
@@ -337,17 +344,23 @@ button{ font: inherit; }
   align-items: center;
 }
 
-.ts-title-block{ margin-bottom: 14px; position: relative; }
+.ts-title-block{ margin-bottom: 40px; position: relative; }
 /* Real SVG geometry rather than a text-shadow trick: #tt-glyphs (the
    one and only place "HUY NGUYEN" is typed) is stamped six times via
-   <use> at stepped offsets for a solid dark extrusion, then once more
+   <use> at stepped offsets for a dark-gray extrusion (each step a
+   touch darker toward the tip, for a bit of shading), then once more
    as the white front face with a thick round-jointed black stroke. */
 #tt-glyphs{
   font-family: var(--font-display);
   font-size: 128px;
   letter-spacing: -4px;
 }
-.tt-extrude{ fill: var(--title-ink); }
+.tt-extrude-1{ fill: #454545; }
+.tt-extrude-2{ fill: #3d3d3d; }
+.tt-extrude-3{ fill: #363636; }
+.tt-extrude-4{ fill: #2e2e2e; }
+.tt-extrude-5{ fill: #262626; }
+.tt-extrude-6{ fill: #1e1e1e; }
 .tt-face{
   fill: #f2f0ea;
   stroke: #0a0a0a;
@@ -357,7 +370,7 @@ button{ font: inherit; }
 }
 .ts-title-svg{
   display: block;
-  width: min(80vw, 1250px);
+  width: min(76vw, 1150px);
   height: auto;
   aspect-ratio: 1000 / 220;
   overflow: visible;
@@ -366,18 +379,20 @@ button{ font: inherit; }
 /* Anchored at the title's own bottom-right corner and rotated around
    that same point (never translated further out), so the excursion
    past the title's edge is small and bounded regardless of text
-   length -- the title container's own min(80vw,1250px) width already
-   guarantees at least 10vw of clearance to the viewport edge. */
+   length -- the title container's own min(76vw,1150px) width already
+   guarantees at least 12vw of clearance to the viewport edge. Pulled
+   inward (right: 8%, smaller max-width/font) so it sits fully over the
+   logo instead of hanging off its corner. */
 .ts-splash{
   position: absolute;
-  bottom: 10%;
-  right: 4%;
-  max-width: 42%;
+  bottom: 12%;
+  right: 8%;
+  max-width: 36%;
   white-space: nowrap;
   text-align: right;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(0.7rem, 2vw, 1.15rem);
+  font-size: clamp(0.62rem, 1.7vw, 1rem);
   color: var(--gold);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
   transform: rotate(-15deg);
@@ -415,17 +430,17 @@ button{ font: inherit; }
   padding: 8px 20px;
   background: linear-gradient(180deg,
     #8c8c8c 0%, #8c8c8c 10%, #737373 10%, #737373 84%, #5e5e5e 84%, #5e5e5e 100%);
-  border: 3px solid #0d0d0d;
+  border: 3px solid #111;
   box-shadow:
-    inset 2px 2px 0 rgba(255, 255, 255, 0.5),
-    inset -2px -2px 0 rgba(0, 0, 0, 0.4);
+    inset 2px 2px 0 rgba(255, 255, 255, 0.35),
+    inset -2px -2px 0 rgba(0, 0, 0, 0.35);
   cursor: pointer;
   transition: filter 120ms var(--ease), transform 80ms var(--ease);
 }
 .ts-menu-btn:hover, .ts-menu-btn:focus-visible{
   filter: brightness(1.15);
   box-shadow:
-    inset 2px 2px 0 rgba(255, 255, 255, 0.65),
+    inset 2px 2px 0 rgba(255, 255, 255, 0.5),
     inset -2px -2px 0 rgba(0, 0, 0, 0.4);
 }
 .ts-menu-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
@@ -455,11 +470,23 @@ button{ font: inherit; }
   position: relative;
   width: 80px;
   height: 110px;
+  /* Scaled up a bit (was 1x) for a little more presence, growing
+     downward from its top edge with a compensating margin so the
+     Connect-with-me button below doesn't collide with the extra
+     visual height (110 * (1.25 - 1) = 27.5px). A custom property (read
+     by the keyframes below too) keeps the idle-bob animation from
+     wiping the scale out on every tick -- animating `transform`
+     replaces the whole property, so the scale has to be part of every
+     keyframe, not just the resting value. */
+  --sprite-scale: 1.25;
+  transform: scale(var(--sprite-scale));
+  transform-origin: top left;
+  margin-bottom: 27.5px;
   animation: sprite-idle 3.2s ease-in-out infinite;
 }
 @keyframes sprite-idle{
-  0%, 100%{ transform: translateY(0); }
-  50%{ transform: translateY(-3px); }
+  0%, 100%{ transform: scale(var(--sprite-scale)) translateY(0); }
+  50%{ transform: scale(var(--sprite-scale)) translateY(-3px); }
 }
 .pf-head{ position: absolute; top: 0; left: 24px; width: 32px; height: 32px; background: #e8b48c; transition: transform 120ms linear; }
 .pf-hair{ position: absolute; top: 0; left: 0; width: 100%; height: 13px; background: #241a14; }
@@ -532,7 +559,7 @@ button{ font: inherit; }
   .ts-menu{ gap: 3px; }
   .ts-menu-btn{ min-height: 52px; padding: 6px 20px; }
   .ts-player-corner{ gap: 8px; }
-  .ts-sprite{ transform: scale(0.75); transform-origin: bottom left; }
+  .ts-sprite{ --sprite-scale: 0.75; transform-origin: bottom left; margin-bottom: 0; }
 }
 
 /* ---- Full-screen swapped panels (About / Experience / Projects) ---- */
