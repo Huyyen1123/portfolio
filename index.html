@@ -85,50 +85,111 @@
 
   <div class="ts-content">
     <div class="ts-title-block">
-      <!-- 3D block-letter title, built as real SVG geometry (not a
-           text-shadow trick): a shared <text> glyph run is stamped six
-           times via <use> at stepped offsets to build a solid dark
-           extrusion, then once more on top as the white/black-outlined
-           front face. Using <use> instead of retyping the string six
-           times also guarantees every copy reads exactly "HUY NGUYEN". -->
-      <svg class="ts-title-svg" viewBox="0 0 1000 220" role="img" aria-label="Huy Nguyen">
+      <!-- 3D block-letter title, built as custom SVG geometry -- no
+           font, no text-shadow. Every letter is hand-built from thick
+           rectangular bars (H/U/N/G/E as straight bars; Y/N/N's
+           diagonals as a stepped staircase of bars, since axis-aligned
+           rects can't do a true diagonal -- consistent with the
+           blocky/voxel technique already used for the site's hills and
+           trees). #tt-letters (in defs) is the ONE definition of the
+           whole "HUY NGUYEN" shape; it's stamped 7 times via <use> --
+           6 at stepped offsets for a large, clearly-visible dark
+           extrusion, then once more as the front face -- so there is
+           only ever one place the letterform geometry is authored. -->
+      <svg class="ts-title-svg" viewBox="0 0 1720 300" role="img" aria-label="Huy Nguyen">
         <defs>
-          <text id="tt-glyphs" x="500" y="150" text-anchor="middle">HUY NGUYEN</text>
+          <g id="tt-letters">
+            <!-- H -->
+            <rect x="30" y="30" width="48" height="200"/>
+            <rect x="142" y="30" width="48" height="200"/>
+            <rect x="30" y="106" width="160" height="48"/>
+            <!-- U -->
+            <rect x="206" y="30" width="48" height="152"/>
+            <rect x="318" y="30" width="48" height="152"/>
+            <rect x="206" y="182" width="160" height="48"/>
+            <!-- Y -->
+            <rect x="382" y="30" width="48" height="55"/>
+            <rect x="414" y="85" width="48" height="40"/>
+            <rect x="494" y="30" width="48" height="55"/>
+            <rect x="462" y="85" width="48" height="40"/>
+            <rect x="438" y="125" width="48" height="105"/>
+            <!-- N -->
+            <rect x="598" y="30" width="48" height="200"/>
+            <rect x="710" y="30" width="48" height="200"/>
+            <rect x="646" y="30" width="40" height="50"/>
+            <rect x="662" y="80" width="40" height="50"/>
+            <rect x="678" y="130" width="40" height="50"/>
+            <rect x="694" y="180" width="40" height="50"/>
+            <!-- G -->
+            <rect x="798" y="30" width="112" height="48"/>
+            <rect x="774" y="30" width="48" height="200"/>
+            <rect x="862" y="130" width="72" height="48"/>
+            <rect x="886" y="130" width="48" height="100"/>
+            <rect x="798" y="182" width="112" height="48"/>
+            <!-- U (2nd) -->
+            <rect x="950" y="30" width="48" height="152"/>
+            <rect x="1062" y="30" width="48" height="152"/>
+            <rect x="950" y="182" width="160" height="48"/>
+            <!-- Y (2nd) -->
+            <rect x="1126" y="30" width="48" height="55"/>
+            <rect x="1158" y="85" width="48" height="40"/>
+            <rect x="1238" y="30" width="48" height="55"/>
+            <rect x="1206" y="85" width="48" height="40"/>
+            <rect x="1182" y="125" width="48" height="105"/>
+            <!-- E -->
+            <rect x="1302" y="30" width="160" height="48"/>
+            <rect x="1302" y="30" width="48" height="200"/>
+            <rect x="1302" y="106" width="125" height="48"/>
+            <rect x="1302" y="182" width="160" height="48"/>
+            <!-- N (2nd) -->
+            <rect x="1478" y="30" width="48" height="200"/>
+            <rect x="1590" y="30" width="48" height="200"/>
+            <rect x="1526" y="30" width="40" height="50"/>
+            <rect x="1542" y="80" width="40" height="50"/>
+            <rect x="1558" y="130" width="40" height="50"/>
+            <rect x="1574" y="180" width="40" height="50"/>
+          </g>
           <!-- Chipped-stone edge: displaces the face's outline with
-               fractal noise instead of a perfectly smooth stroke, so it
-               reads as weathered block letters rather than a clean
-               vector shape. filterUnits="objectBoundingBox" with a
-               generous region keeps it from clipping. -->
-          <filter id="tt-chip" x="-15%" y="-40%" width="130%" height="180%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.08 0.09" numOctaves="2" seed="6" result="noise"/>
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+               fractal noise instead of a perfectly smooth stroke, so
+               the sharp rect corners read as weathered/irregular
+               rather than a clean vector shape. -->
+          <filter id="tt-chip" x="-8%" y="-25%" width="116%" height="150%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.045 0.05" numOctaves="2" seed="6" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G"/>
           </filter>
-          <!-- Clips the crack-line paths below to the letter shapes
-               themselves, so the cracks only show up on the glyphs. -->
           <clipPath id="tt-glyphs-clip">
-            <use href="#tt-glyphs"/>
+            <use href="#tt-letters"/>
           </clipPath>
         </defs>
-        <use href="#tt-glyphs" x="15" y="17" class="tt-extrude-6"/>
-        <use href="#tt-glyphs" x="12.5" y="14.5" class="tt-extrude-5"/>
-        <use href="#tt-glyphs" x="10" y="11.5" class="tt-extrude-4"/>
-        <use href="#tt-glyphs" x="7.5" y="8.5" class="tt-extrude-3"/>
-        <use href="#tt-glyphs" x="5" y="6" class="tt-extrude-2"/>
-        <use href="#tt-glyphs" x="2.5" y="3" class="tt-extrude-1"/>
-        <use href="#tt-glyphs" class="tt-face"/>
+        <use href="#tt-letters" x="30" y="36" class="tt-extrude-6"/>
+        <use href="#tt-letters" x="25" y="30" class="tt-extrude-5"/>
+        <use href="#tt-letters" x="20" y="24" class="tt-extrude-4"/>
+        <use href="#tt-letters" x="15" y="18" class="tt-extrude-3"/>
+        <use href="#tt-letters" x="10" y="12" class="tt-extrude-2"/>
+        <use href="#tt-letters" x="5" y="6" class="tt-extrude-1"/>
+        <use href="#tt-letters" class="tt-face"/>
+        <!-- Subtle lighter highlight strips along a few top edges, for
+             a bit of dimensional shading on the front faces. -->
+        <g class="tt-highlights" aria-hidden="true">
+          <rect x="30" y="30" width="48" height="10"/>
+          <rect x="206" y="30" width="48" height="10"/>
+          <rect x="598" y="30" width="48" height="10"/>
+          <rect x="774" y="30" width="48" height="10"/>
+          <rect x="950" y="30" width="48" height="10"/>
+          <rect x="1302" y="30" width="48" height="10"/>
+          <rect x="1478" y="30" width="48" height="10"/>
+        </g>
         <!-- A handful of thin crack lines scattered across the face,
-             matching the reference's chipped-stone texture -- generic
-             placement rather than aligned to specific letters, since
-             real weathering doesn't respect letter boundaries either. -->
+             matching the reference's chipped-stone texture. -->
         <g class="tt-cracks" aria-hidden="true">
-          <path d="M120,110 L145,95 L138,130"/>
-          <path d="M260,90 L280,120"/>
-          <path d="M340,140 L365,115 L352,155"/>
-          <path d="M470,95 L455,130"/>
-          <path d="M560,150 L590,130"/>
-          <path d="M650,100 L672,135 L640,140"/>
-          <path d="M760,145 L785,120"/>
-          <path d="M850,100 L830,135"/>
+          <path d="M90,120 L110,100 L100,140"/>
+          <path d="M260,90 L280,115"/>
+          <path d="M420,150 L445,125"/>
+          <path d="M660,90 L640,125 L670,130"/>
+          <path d="M850,160 L875,140"/>
+          <path d="M1180,90 L1200,120"/>
+          <path d="M1360,150 L1385,125"/>
+          <path d="M1540,90 L1520,125 L1550,130"/>
         </g>
       </svg>
       <!-- The real menu hangs a small maroon "JAVA EDITION" ribbon

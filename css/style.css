@@ -347,19 +347,11 @@ button{ font: inherit; }
 }
 
 .ts-title-block{ margin-bottom: 40px; position: relative; }
-/* Real SVG geometry rather than a text-shadow trick: #tt-glyphs (the
-   one and only place "HUY NGUYEN" is typed) is stamped six times via
-   <use> at stepped offsets for a dark-gray extrusion (each step a
-   touch darker toward the tip, for a bit of shading), then once more
-   as the white front face with a thick round-jointed black stroke. */
-#tt-glyphs{
-  font-family: var(--font-display);
-  font-weight: 700; /* Minecraft-Bold.otf -- the regular weight (400,
-    Minecraft.otf) is the thin UI/menu cut; the bold cut is the thick
-    block-letter one the huge title actually needs. */
-  font-size: 128px;
-  letter-spacing: -4px;
-}
+/* Custom SVG geometry, no font involved -- #tt-letters (in the HTML,
+   the one and only definition of the letterform shapes) is stamped 7
+   times via <use>: 6 at stepped offsets for a large dark extrusion
+   (each step a touch darker toward the tip), then once more as the
+   white front face with a thick black outline. */
 .tt-extrude-1{ fill: #6b6b6b; }
 .tt-extrude-2{ fill: #5a5a5a; }
 .tt-extrude-3{ fill: #4a4a4a; }
@@ -369,10 +361,20 @@ button{ font: inherit; }
 .tt-face{
   fill: #f2f0ea;
   stroke: #0a0a0a;
-  stroke-width: 7px;
+  stroke-width: 14px;
   stroke-linejoin: round;
   paint-order: stroke fill;
   filter: url(#tt-chip);
+}
+/* A few lighter strips along the top of some bars for dimensional
+   shading -- clipped to the letterform shapes so they never spill
+   past a bar's own edge. */
+.tt-highlights{
+  clip-path: url(#tt-glyphs-clip);
+}
+.tt-highlights rect{
+  fill: #ffffff;
+  opacity: 0.32;
 }
 /* Thin dark hairline cracks over the face, same chipped-stone idea as
    the extrusion's rough edge -- clipped to the glyph shapes themselves
@@ -384,15 +386,15 @@ button{ font: inherit; }
 .tt-cracks path{
   fill: none;
   stroke: #0a0a0a;
-  stroke-width: 2.5px;
+  stroke-width: 3px;
   stroke-linecap: round;
   opacity: 0.4;
 }
 .ts-title-svg{
   display: block;
-  width: min(76vw, 1150px);
+  width: min(78vw, 1560px);
   height: auto;
-  aspect-ratio: 1000 / 220;
+  aspect-ratio: 1720 / 300;
   overflow: visible;
 }
 
