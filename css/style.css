@@ -372,6 +372,21 @@ button{ font: inherit; }
   stroke-width: 7px;
   stroke-linejoin: round;
   paint-order: stroke fill;
+  filter: url(#tt-chip);
+}
+/* Thin dark hairline cracks over the face, same chipped-stone idea as
+   the extrusion's rough edge -- clipped to the glyph shapes themselves
+   so they only show up on the letters, not the empty space between
+   them (a plain stroke without a clip would draw across everything). */
+.tt-cracks{
+  clip-path: url(#tt-glyphs-clip);
+}
+.tt-cracks path{
+  fill: none;
+  stroke: #0a0a0a;
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  opacity: 0.4;
 }
 .ts-title-svg{
   display: block;

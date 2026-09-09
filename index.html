@@ -94,6 +94,20 @@
       <svg class="ts-title-svg" viewBox="0 0 1000 220" role="img" aria-label="Huy Nguyen">
         <defs>
           <text id="tt-glyphs" x="500" y="150" text-anchor="middle">HUY NGUYEN</text>
+          <!-- Chipped-stone edge: displaces the face's outline with
+               fractal noise instead of a perfectly smooth stroke, so it
+               reads as weathered block letters rather than a clean
+               vector shape. filterUnits="objectBoundingBox" with a
+               generous region keeps it from clipping. -->
+          <filter id="tt-chip" x="-15%" y="-40%" width="130%" height="180%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.08 0.09" numOctaves="2" seed="6" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+          <!-- Clips the crack-line paths below to the letter shapes
+               themselves, so the cracks only show up on the glyphs. -->
+          <clipPath id="tt-glyphs-clip">
+            <use href="#tt-glyphs"/>
+          </clipPath>
         </defs>
         <use href="#tt-glyphs" x="15" y="17" class="tt-extrude-6"/>
         <use href="#tt-glyphs" x="12.5" y="14.5" class="tt-extrude-5"/>
@@ -102,6 +116,20 @@
         <use href="#tt-glyphs" x="5" y="6" class="tt-extrude-2"/>
         <use href="#tt-glyphs" x="2.5" y="3" class="tt-extrude-1"/>
         <use href="#tt-glyphs" class="tt-face"/>
+        <!-- A handful of thin crack lines scattered across the face,
+             matching the reference's chipped-stone texture -- generic
+             placement rather than aligned to specific letters, since
+             real weathering doesn't respect letter boundaries either. -->
+        <g class="tt-cracks" aria-hidden="true">
+          <path d="M120,110 L145,95 L138,130"/>
+          <path d="M260,90 L280,120"/>
+          <path d="M340,140 L365,115 L352,155"/>
+          <path d="M470,95 L455,130"/>
+          <path d="M560,150 L590,130"/>
+          <path d="M650,100 L672,135 L640,140"/>
+          <path d="M760,145 L785,120"/>
+          <path d="M850,100 L830,135"/>
+        </g>
       </svg>
       <!-- The real menu hangs a small maroon "JAVA EDITION" ribbon
            directly under the logo, separate from the yellow splash
