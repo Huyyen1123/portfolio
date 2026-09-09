@@ -363,15 +363,18 @@ button{ font: inherit; }
    as the white front face with a thick round-jointed black stroke. */
 #tt-glyphs{
   font-family: var(--font-display);
+  font-weight: 700; /* Minecraft-Bold.otf -- the regular weight (400,
+    Minecraft.otf) is the thin UI/menu cut; the bold cut is the thick
+    block-letter one the huge title actually needs. */
   font-size: 128px;
   letter-spacing: -4px;
 }
-.tt-extrude-1{ fill: #454545; }
-.tt-extrude-2{ fill: #3d3d3d; }
-.tt-extrude-3{ fill: #363636; }
-.tt-extrude-4{ fill: #2e2e2e; }
-.tt-extrude-5{ fill: #262626; }
-.tt-extrude-6{ fill: #1e1e1e; }
+.tt-extrude-1{ fill: #6b6b6b; }
+.tt-extrude-2{ fill: #5a5a5a; }
+.tt-extrude-3{ fill: #4a4a4a; }
+.tt-extrude-4{ fill: #3a3a3a; }
+.tt-extrude-5{ fill: #2a2a2a; }
+.tt-extrude-6{ fill: #171717; }
 .tt-face{
   fill: #f2f0ea;
   stroke: #0a0a0a;
