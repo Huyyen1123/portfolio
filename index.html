@@ -28,12 +28,20 @@
 </div>
 
 <header class="titlescreen" id="titlescreen">
-  <!-- Background: a single panorama image, not procedural CSS art. No
-       file is bundled yet (assets/images/background.png) -- until it's
-       added, .ts-bg's CSS background-color fallback shows a plain dark
-       screen, silently. Drop the real file in at that path and it
-       displays automatically, no code change needed. -->
-  <div class="ts-bg" aria-hidden="true"></div>
+  <!-- Background: a real looping video, not procedural CSS art -- a
+       15s clip from Huy's own Minecraft world (a night-time cherry-
+       blossom village build), screen-recorded and trimmed to a clean,
+       seamless loop (static camera, so the loop point is nearly
+       invisible). muted+autoplay+playsinline is required for this to
+       autoplay across browsers/iOS without a user gesture. The PNG is
+       kept as the poster (shown before the first frame decodes) and as
+       true fallback content for the rare browser with no video
+       support at all. -->
+  <video class="ts-bg" aria-hidden="true" autoplay muted loop playsinline poster="assets/images/background.png">
+    <source src="assets/video/background.webm" type="video/webm">
+    <source src="assets/video/background.mp4" type="video/mp4">
+    <img src="assets/images/background.png" alt="">
+  </video>
   <div class="ts-overlay" aria-hidden="true"></div>
 
   <!-- Falling cherry-blossom petals -- small pixel-plus shapes drifting
@@ -95,6 +103,11 @@
         <use href="#tt-glyphs" x="2.5" y="3" class="tt-extrude-1"/>
         <use href="#tt-glyphs" class="tt-face"/>
       </svg>
+      <!-- The real menu hangs a small maroon "JAVA EDITION" ribbon
+           directly under the logo, separate from the yellow splash
+           text off to the side -- this is that ribbon's portfolio
+           equivalent, not a duplicate of the splash. -->
+      <div class="ts-edition-banner" aria-hidden="true">Portfolio Edition</div>
       <p class="ts-splash">Software Engineer!</p>
     </div>
 
@@ -127,11 +140,13 @@
       </span>
       Connect with me
     </a>
-    <p class="ts-copyright">&copy; Huy Nguyen</p>
+    <p class="ts-corner-version">v1.0.0</p>
   </div>
 
-  <!-- Bottom-right: version tag, opposite corner from the player stack. -->
-  <p class="ts-version">v1.0.0</p>
+  <!-- Bottom-right: copyright, opposite corner from the player stack --
+       matches the real menu's corners (version left, copyright right),
+       just swapped from an earlier pass that had them backwards. -->
+  <p class="ts-corner-copyright">&copy; 2026 Huy Nguyen. All rights reserved.</p>
 </header>
 
 <!-- Settings panel -- opened by the gear button above. A dim backdrop

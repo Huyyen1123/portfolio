@@ -176,34 +176,25 @@ button{ font: inherit; }
 .titlescreen.visible{ opacity: 1; }
 .titlescreen.ts-hidden{ display: none; }
 
-/* ---- Background: a single panorama IMAGE, animated to match the real
-   compiled CSS pulled from danielomoregie.com's own panorama layer
-   (fetched and read directly, not guessed from watching it):
-     .panorama-container{ background-size:400% 100%;
-       animation:panBackground 60s linear infinite; }
-     @keyframes panBackground{ 0%{bg-pos:0 50%} 50%{100% 50%} to{0 50%} }
-   Their asset is a wide tiled CSS gradient, so they animate
-   background-position; ours is a real cover-sized photo, so the
-   equivalent motion is a horizontal translate3d instead -- same slow
-   60s pacing, same horizontal-only axis (their keyframes never touch
-   the vertical position), but their animation has NO scale/zoom at
-   any point, so this doesn't scale either. inset/width/height oversize
-   the layer as static overscan (not an animated zoom) purely so the
-   translate never exposes an edge. Timing switched to ease-in-out
-   (theirs is linear) since linear would produce a visible velocity
-   snap at each direction change on a real translated photo -- a
-   deliberate adaptation, not a literal copy. */
+/* ---- Background: a real looping video (Huy's own recorded build) --
+   object-fit:cover is the <video> equivalent of background-size:cover.
+   The same slow translate3d drift from before is kept on top of it
+   (see danielomoregie.com research in git history for why translate3d
+   + ease-in-out was chosen over their linear background-position
+   technique) -- the footage itself is a static camera, so this drift
+   is what gives it the "camera slowly moving" feel. inset/width/height
+   oversize the layer as static overscan so the drift never exposes an
+   edge. object-position keeps the same "centered" framing a
+   background-position:center center would have given the image. */
 .ts-bg{
   position: fixed;
   inset: -4%;
   width: 108%;
   height: 108%;
   z-index: -10;
+  object-fit: cover;
+  object-position: center center;
   background-color: var(--void);
-  background-image: url('../assets/images/background.png');
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
   animation: minecraftPan 60s ease-in-out infinite alternate;
   will-change: transform;
 }
@@ -390,6 +381,27 @@ button{ font: inherit; }
   overflow: visible;
 }
 
+/* Same maroon as the loading screen's logo panel (--loading-logo-panel)
+   -- it's the real Java-Edition-ribbon color, so the two reuse one
+   token instead of drifting apart. */
+.ts-edition-banner{
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  transform: translateX(-50%) rotate(-1.5deg);
+  z-index: 2;
+  background: var(--loading-logo-panel);
+  border: 2px solid #2b0d0d;
+  color: #f2c78a;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.5rem, 1.15vw, 0.75rem);
+  letter-spacing: 0.06em;
+  padding: 4px 16px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+
 /* Anchored at the title's own bottom-right corner and rotated around
    that same point (never translated further out), so the excursion
    past the title's edge is small and bounded regardless of text
@@ -407,15 +419,20 @@ button{ font: inherit; }
   font-family: var(--font-display);
   font-weight: 700;
   font-size: clamp(0.62rem, 1.7vw, 1rem);
-  color: var(--gold);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.65);
+  /* Real Minecraft splash-text color (#FFFF55) and bounce, pulled
+     straight from the reference site's compiled CSS (.splash-text,
+     @keyframes splashBounce) rather than approximated: 0.5s
+     ease-in-out infinite alternate between scale(1) and scale(1.12),
+     with the matching dark-yellow (not black) shadow. */
+  color: #ffff55;
+  text-shadow: 2px 2px 0 #3f3f00;
   transform: rotate(-15deg);
   transform-origin: bottom right;
-  animation: splashPulse 1.5s ease-in-out infinite;
+  animation: splashBounce 0.5s ease-in-out infinite alternate;
 }
-@keyframes splashPulse{
-  0%, 100%{ transform: rotate(-15deg) scale(1); }
-  50%{ transform: rotate(-15deg) scale(1.05); }
+@keyframes splashBounce{
+  0%{ transform: rotate(-15deg) scale(1); }
+  100%{ transform: rotate(-15deg) scale(1.12); }
 }
 
 .ts-menu{
@@ -449,10 +466,19 @@ button{ font: inherit; }
     inset 2px 2px 0 rgba(255, 255, 255, 0.35),
     inset -2px -2px 0 rgba(0, 0, 0, 0.35);
   cursor: pointer;
-  transition: filter 120ms var(--ease), transform 80ms var(--ease);
+  transition: filter 120ms var(--ease), transform 80ms var(--ease),
+    background 120ms var(--ease), color 120ms var(--ease);
 }
+/* The real Minecraft button hover doesn't just brighten -- it shifts
+   the whole button to a blue-purple tint and the label turns bright
+   yellow. That color swap is one of the most recognizable interactions
+   on the actual menu, so it's reproduced here (banded gradient kept,
+   just re-tinted) rather than a generic brightness filter. */
 .ts-menu-btn:hover, .ts-menu-btn:focus-visible{
-  filter: brightness(1.15);
+  color: #ffff55;
+  text-shadow: 2px 2px 0 #3f3f00;
+  background: linear-gradient(180deg,
+    #8494c9 0%, #8494c9 10%, #6272a8 10%, #6272a8 84%, #4d5c8c 84%, #4d5c8c 100%);
   box-shadow:
     inset 2px 2px 0 rgba(255, 255, 255, 0.5),
     inset -2px -2px 0 rgba(0, 0, 0, 0.4);
@@ -544,7 +570,9 @@ button{ font: inherit; }
   flex-shrink: 0;
 }
 .ts-linkedin-icon{ width: 12px; height: 12px; fill: #ffffff; }
-.ts-copyright{
+/* Flows inline within .ts-player-corner's stack -- bottom-left, next to
+   the version's real-Minecraft home. */
+.ts-corner-version{
   margin: 0;
   font-family: var(--font-display);
   font-size: 0.55rem;
@@ -552,8 +580,8 @@ button{ font: inherit; }
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
 }
 
-/* ---- Bottom-right: version tag, opposite corner ---- */
-.ts-version{
+/* ---- Bottom-right: copyright, opposite corner ---- */
+.ts-corner-copyright{
   position: absolute;
   bottom: 16px;
   right: 20px;
