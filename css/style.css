@@ -459,10 +459,10 @@ button{ font: inherit; }
   width: min(650px, 42vw);
   min-width: 300px;
 }
-/* Banded gradient mimicking the vanilla button texture, a thick
-   near-black outer border, and an asymmetric inset bevel -- bright
-   highlight on the top/left edge, darker shade on the bottom/right --
-   for a genuine raised look. Sharp square corners throughout. */
+/* A smooth, subtle gray falloff (not hard-stopped bands) plus a thick
+   near-black outer border and a thin inset bevel -- reads closer to
+   the reference mockup's flatter, more uniform button face than a
+   strongly striped texture. Sharp square corners throughout. */
 .ts-menu-btn{
   display: flex;
   align-items: center;
@@ -476,8 +476,7 @@ button{ font: inherit; }
   color: var(--offwhite);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
   padding: 8px 20px;
-  background: linear-gradient(180deg,
-    #8c8c8c 0%, #8c8c8c 10%, #737373 10%, #737373 84%, #5e5e5e 84%, #5e5e5e 100%);
+  background: linear-gradient(180deg, #949494 0%, #848484 50%, #767676 100%);
   border: 3px solid #111;
   box-shadow:
     inset 2px 2px 0 rgba(255, 255, 255, 0.35),
@@ -494,8 +493,7 @@ button{ font: inherit; }
 .ts-menu-btn:hover, .ts-menu-btn:focus-visible{
   color: #ffff55;
   text-shadow: 2px 2px 0 #3f3f00;
-  background: linear-gradient(180deg,
-    #8494c9 0%, #8494c9 10%, #6272a8 10%, #6272a8 84%, #4d5c8c 84%, #4d5c8c 100%);
+  background: linear-gradient(180deg, #7e8fc4 0%, #6e7fb4 50%, #5f70a4 100%);
   box-shadow:
     inset 2px 2px 0 rgba(255, 255, 255, 0.5),
     inset -2px -2px 0 rgba(0, 0, 0, 0.4);
@@ -517,7 +515,7 @@ button{ font: inherit; }
 .ts-nametag{
   display: inline-block;
   background: rgba(15, 15, 18, 0.75);
-  border: 1px solid var(--gold);
+  border: 1px solid rgba(231, 228, 218, 0.5);
   color: var(--offwhite);
   font-family: var(--font-display);
   font-size: 0.6rem;
