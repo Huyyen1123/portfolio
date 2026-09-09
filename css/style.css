@@ -347,55 +347,16 @@ button{ font: inherit; }
 }
 
 .ts-title-block{ margin-bottom: 90px; position: relative; }
-/* Custom SVG geometry, no font involved -- #tt-letters (in the HTML,
-   the one and only definition of the letterform shapes) is stamped 7
-   times via <use>: 6 at stepped offsets for a large dark extrusion
-   (each step a touch darker toward the tip), then once more as the
-   white front face with a thick black outline. */
-.tt-extrude-1{ fill: #6b6b6b; }
-.tt-extrude-2{ fill: #5a5a5a; }
-.tt-extrude-3{ fill: #4a4a4a; }
-.tt-extrude-4{ fill: #3a3a3a; }
-.tt-extrude-5{ fill: #2a2a2a; }
-.tt-extrude-6{ fill: #171717; }
-.tt-face{
-  fill: #f2f0ea;
-  stroke: #0a0a0a;
-  stroke-width: 14px;
-  stroke-linejoin: round;
-  paint-order: stroke fill;
-  filter: url(#tt-chip);
-}
-/* A few lighter strips along the top of some bars for dimensional
-   shading -- clipped to the letterform shapes so they never spill
-   past a bar's own edge. */
-.tt-highlights{
-  clip-path: url(#tt-glyphs-clip);
-}
-.tt-highlights rect{
-  fill: #ffffff;
-  opacity: 0.32;
-}
-/* Thin dark hairline cracks over the face, same chipped-stone idea as
-   the extrusion's rough edge -- clipped to the glyph shapes themselves
-   so they only show up on the letters, not the empty space between
-   them (a plain stroke without a clip would draw across everything). */
-.tt-cracks{
-  clip-path: url(#tt-glyphs-clip);
-}
-.tt-cracks path{
-  fill: none;
-  stroke: #0a0a0a;
-  stroke-width: 3px;
-  stroke-linecap: round;
-  opacity: 0.4;
-}
-.ts-title-svg{
+/* The logo is a real image now (assets/images/huy-nguyen-logo.png) --
+   no letterform geometry, no extrusion stack, no filters to maintain
+   here. object-fit:contain + height:auto preserve its native aspect
+   ratio at any width; it is never stretched or distorted. */
+.ts-title-logo{
   display: block;
-  width: min(78vw, 1560px);
+  width: min(80vw, 1250px);
   height: auto;
-  aspect-ratio: 1720 / 300;
-  overflow: visible;
+  margin: 0 auto;
+  object-fit: contain;
 }
 
 /* Same maroon as the loading screen's logo panel (--loading-logo-panel)
@@ -612,7 +573,7 @@ button{ font: inherit; }
    in the corner stacks or the centered content collides. */
 @media (max-height: 760px){
   .ts-title-block{ margin-bottom: 46px; }
-  .ts-title-svg{ width: min(64vw, 820px); }
+  .ts-title-logo{ width: min(64vw, 820px); }
   .ts-edition-banner{ bottom: -32px; }
   .ts-menu{ gap: 3px; }
   .ts-menu-btn{ min-height: 52px; padding: 6px 20px; }
@@ -878,5 +839,5 @@ button{ font: inherit; }
   .inventory-grid{ grid-template-columns: repeat(2, 1fr); max-width: 280px; }
   .ts-menu{ width: min(400px, 92vw); min-width: 0; }
   .loading-logo{ padding: 24px 32px; }
-  .ts-title-svg{ width: min(90vw, 480px); }
+  .ts-title-logo{ width: min(90vw, 480px); }
 }

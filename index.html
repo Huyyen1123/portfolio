@@ -85,113 +85,13 @@
 
   <div class="ts-content">
     <div class="ts-title-block">
-      <!-- 3D block-letter title, built as custom SVG geometry -- no
-           font, no text-shadow. Every letter is hand-built from thick
-           rectangular bars (H/U/N/G/E as straight bars; Y/N/N's
-           diagonals as a stepped staircase of bars, since axis-aligned
-           rects can't do a true diagonal -- consistent with the
-           blocky/voxel technique already used for the site's hills and
-           trees). #tt-letters (in defs) is the ONE definition of the
-           whole "HUY NGUYEN" shape; it's stamped 7 times via <use> --
-           6 at stepped offsets for a large, clearly-visible dark
-           extrusion, then once more as the front face -- so there is
-           only ever one place the letterform geometry is authored. -->
-      <svg class="ts-title-svg" viewBox="0 0 1720 300" role="img" aria-label="Huy Nguyen">
-        <defs>
-          <g id="tt-letters">
-            <!-- H -->
-            <rect x="30" y="30" width="48" height="200"/>
-            <rect x="142" y="30" width="48" height="200"/>
-            <rect x="30" y="106" width="160" height="48"/>
-            <!-- U -->
-            <rect x="206" y="30" width="48" height="152"/>
-            <rect x="318" y="30" width="48" height="152"/>
-            <rect x="206" y="182" width="160" height="48"/>
-            <!-- Y -->
-            <rect x="382" y="30" width="48" height="55"/>
-            <rect x="414" y="85" width="48" height="40"/>
-            <rect x="494" y="30" width="48" height="55"/>
-            <rect x="462" y="85" width="48" height="40"/>
-            <rect x="438" y="125" width="48" height="105"/>
-            <!-- N -->
-            <rect x="598" y="30" width="48" height="200"/>
-            <rect x="710" y="30" width="48" height="200"/>
-            <rect x="646" y="30" width="40" height="50"/>
-            <rect x="662" y="80" width="40" height="50"/>
-            <rect x="678" y="130" width="40" height="50"/>
-            <rect x="694" y="180" width="40" height="50"/>
-            <!-- G -->
-            <rect x="798" y="30" width="112" height="48"/>
-            <rect x="774" y="30" width="48" height="200"/>
-            <rect x="862" y="130" width="72" height="48"/>
-            <rect x="886" y="130" width="48" height="100"/>
-            <rect x="798" y="182" width="112" height="48"/>
-            <!-- U (2nd) -->
-            <rect x="950" y="30" width="48" height="152"/>
-            <rect x="1062" y="30" width="48" height="152"/>
-            <rect x="950" y="182" width="160" height="48"/>
-            <!-- Y (2nd) -->
-            <rect x="1126" y="30" width="48" height="55"/>
-            <rect x="1158" y="85" width="48" height="40"/>
-            <rect x="1238" y="30" width="48" height="55"/>
-            <rect x="1206" y="85" width="48" height="40"/>
-            <rect x="1182" y="125" width="48" height="105"/>
-            <!-- E -->
-            <rect x="1302" y="30" width="160" height="48"/>
-            <rect x="1302" y="30" width="48" height="200"/>
-            <rect x="1302" y="106" width="125" height="48"/>
-            <rect x="1302" y="182" width="160" height="48"/>
-            <!-- N (2nd) -->
-            <rect x="1478" y="30" width="48" height="200"/>
-            <rect x="1590" y="30" width="48" height="200"/>
-            <rect x="1526" y="30" width="40" height="50"/>
-            <rect x="1542" y="80" width="40" height="50"/>
-            <rect x="1558" y="130" width="40" height="50"/>
-            <rect x="1574" y="180" width="40" height="50"/>
-          </g>
-          <!-- Chipped-stone edge: displaces the face's outline with
-               fractal noise instead of a perfectly smooth stroke, so
-               the sharp rect corners read as weathered/irregular
-               rather than a clean vector shape. -->
-          <filter id="tt-chip" x="-8%" y="-25%" width="116%" height="150%">
-            <feTurbulence type="fractalNoise" baseFrequency="0.045 0.05" numOctaves="2" seed="6" result="noise"/>
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="6" xChannelSelector="R" yChannelSelector="G"/>
-          </filter>
-          <clipPath id="tt-glyphs-clip">
-            <use href="#tt-letters"/>
-          </clipPath>
-        </defs>
-        <use href="#tt-letters" x="30" y="36" class="tt-extrude-6"/>
-        <use href="#tt-letters" x="25" y="30" class="tt-extrude-5"/>
-        <use href="#tt-letters" x="20" y="24" class="tt-extrude-4"/>
-        <use href="#tt-letters" x="15" y="18" class="tt-extrude-3"/>
-        <use href="#tt-letters" x="10" y="12" class="tt-extrude-2"/>
-        <use href="#tt-letters" x="5" y="6" class="tt-extrude-1"/>
-        <use href="#tt-letters" class="tt-face"/>
-        <!-- Subtle lighter highlight strips along a few top edges, for
-             a bit of dimensional shading on the front faces. -->
-        <g class="tt-highlights" aria-hidden="true">
-          <rect x="30" y="30" width="48" height="10"/>
-          <rect x="206" y="30" width="48" height="10"/>
-          <rect x="598" y="30" width="48" height="10"/>
-          <rect x="774" y="30" width="48" height="10"/>
-          <rect x="950" y="30" width="48" height="10"/>
-          <rect x="1302" y="30" width="48" height="10"/>
-          <rect x="1478" y="30" width="48" height="10"/>
-        </g>
-        <!-- A handful of thin crack lines scattered across the face,
-             matching the reference's chipped-stone texture. -->
-        <g class="tt-cracks" aria-hidden="true">
-          <path d="M90,120 L110,100 L100,140"/>
-          <path d="M260,90 L280,115"/>
-          <path d="M420,150 L445,125"/>
-          <path d="M660,90 L640,125 L670,130"/>
-          <path d="M850,160 L875,140"/>
-          <path d="M1180,90 L1200,120"/>
-          <path d="M1360,150 L1385,125"/>
-          <path d="M1540,90 L1520,125 L1550,130"/>
-        </g>
-      </svg>
+      <!-- HUY NGUYEN logo -- a real image asset (Huy's own AI-generated
+           artwork, transparent PNG), not reconstructed HTML/SVG/CSS.
+           Replaces the earlier hand-built rect-letterform SVG entirely,
+           per explicit instruction to stop approximating and use the
+           actual artwork. object-fit:contain preserves its aspect
+           ratio at any width -- never stretched. -->
+      <img class="ts-title-logo" src="assets/images/huy-nguyen-logo.png" alt="Huy Nguyen">
       <!-- The real menu hangs a small maroon "JAVA EDITION" ribbon
            directly under the logo, separate from the yellow splash
            text off to the side -- this is that ribbon's portfolio
