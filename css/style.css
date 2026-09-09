@@ -346,7 +346,7 @@ button{ font: inherit; }
   align-items: center;
 }
 
-.ts-title-block{ margin-bottom: 40px; position: relative; }
+.ts-title-block{ margin-bottom: 90px; position: relative; }
 /* Custom SVG geometry, no font involved -- #tt-letters (in the HTML,
    the one and only definition of the letterform shapes) is stamped 7
    times via <use>: 6 at stepped offsets for a large dark extrusion
@@ -404,8 +404,8 @@ button{ font: inherit; }
 .ts-edition-banner{
   position: absolute;
   left: 50%;
-  bottom: -4px;
-  transform: translateX(-50%) rotate(-1.5deg);
+  bottom: -56px;
+  transform: translateX(-50%);
   z-index: 2;
   background: var(--loading-logo-panel);
   border: 2px solid #2b0d0d;
@@ -613,8 +613,9 @@ button{ font: inherit; }
 /* Shorter viewports (e.g. 1280x720): tighten vertical rhythm so nothing
    in the corner stacks or the centered content collides. */
 @media (max-height: 760px){
-  .ts-title-block{ margin-bottom: 10px; }
+  .ts-title-block{ margin-bottom: 46px; }
   .ts-title-svg{ width: min(64vw, 820px); }
+  .ts-edition-banner{ bottom: -32px; }
   .ts-menu{ gap: 3px; }
   .ts-menu-btn{ min-height: 52px; padding: 6px 20px; }
   .ts-player-corner{ gap: 8px; }
