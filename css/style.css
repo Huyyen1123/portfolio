@@ -346,7 +346,13 @@ button{ font: inherit; }
   align-items: center;
 }
 
-.ts-title-block{ margin-bottom: 90px; position: relative; }
+/* Tied to the same width expression that sizes .ts-title-logo (below)
+   via calc(), instead of a flat px value -- a fixed px gap looked
+   right only near the logo's max rendered width and read as
+   proportionally oversized once the logo shrank on a narrower
+   viewport. Each responsive-width breakpoint for the logo gets a
+   matching version of this formula (see .ts-edition-banner too). */
+.ts-title-block{ margin-bottom: calc(min(80vw, 1250px) * 0.072); position: relative; }
 /* The logo is a real image now (assets/images/huy-nguyen-logo.png) --
    no letterform geometry, no extrusion stack, no filters to maintain
    here. object-fit:contain + height:auto preserve its native aspect
@@ -365,7 +371,9 @@ button{ font: inherit; }
 .ts-edition-banner{
   position: absolute;
   left: 50%;
-  bottom: -56px;
+  /* Same fix as .ts-title-block's margin above -- scales with the
+     logo's own responsive width instead of a flat offset. */
+  bottom: calc(min(80vw, 1250px) * -0.045);
   transform: translateX(-50%);
   z-index: 2;
   background: var(--loading-logo-panel);
@@ -572,9 +580,9 @@ button{ font: inherit; }
 /* Shorter viewports (e.g. 1280x720): tighten vertical rhythm so nothing
    in the corner stacks or the centered content collides. */
 @media (max-height: 760px){
-  .ts-title-block{ margin-bottom: 46px; }
+  .ts-title-block{ margin-bottom: calc(min(64vw, 820px) * 0.056); }
   .ts-title-logo{ width: min(64vw, 820px); }
-  .ts-edition-banner{ bottom: -32px; }
+  .ts-edition-banner{ bottom: calc(min(64vw, 820px) * -0.039); }
   .ts-menu{ gap: 3px; }
   .ts-menu-btn{ min-height: 52px; padding: 6px 20px; }
   .ts-player-corner{ gap: 8px; }
@@ -840,4 +848,10 @@ button{ font: inherit; }
   .ts-menu{ width: min(400px, 92vw); min-width: 0; }
   .loading-logo{ padding: 24px 32px; }
   .ts-title-logo{ width: min(90vw, 480px); }
+  /* Previously missing at this breakpoint entirely -- the logo shrank
+     here but the gap/ribbon offsets kept inheriting the desktop
+     values (or the 760px-height ones), reading as oversized next to
+     a much smaller logo. */
+  .ts-title-block{ margin-bottom: calc(min(90vw, 480px) * 0.072); }
+  .ts-edition-banner{ bottom: calc(min(90vw, 480px) * -0.045); }
 }
