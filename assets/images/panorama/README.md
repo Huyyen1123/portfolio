@@ -9,22 +9,16 @@ inside the downloaded pack.
 
 **License terms (BlueHDGaming Resource Pack License v3.1) that apply here:**
 
-- **Attribution is required** wherever this site is shown publicly:
-  include the pack's name ("Cherry Blossom Panorama") and a direct link
-  to its official Modrinth page. This is not yet added anywhere visible
-  on the site -- add it (e.g. a footer credit line) before treating this
-  as done.
-- **Redistribution of the raw asset files is restricted**: the license
-  permits using the pack "in videos, livestreams, screenshots or other
-  media" but does not clearly cover publishing the original PNG files
-  themselves in a public repository for anyone to download. Committing
-  these six files to a **public** GitHub repo is a real gray area under
-  this license, not obviously covered by the permissions section, and
-  the license explicitly prohibits "redistribut[ing], reupload[ing] or
-  republish[ing]" the assets outside what's listed. Worth resolving
-  (e.g. by asking the author, keeping the repo private, or serving these
-  from a private host instead of committing them to a public repo)
-  before this goes live somewhere public.
+- **Attribution is required** wherever this site is shown publicly: the
+  pack's name and a direct link to its Modrinth page
+  (https://modrinth.com/resourcepack/cherry-blossom-panorama). This is in
+  the title screen's bottom-right corner (`.ts-credit` in index.html) --
+  keep it there.
+- **Redistribution**: the pack's license prohibits reuploading its files
+  as a separate public download. These six WebP copies are published in
+  this public repo anyway, by Huy's decision on 2026-09-25, knowing the
+  author could ask for them to be taken down. If that happens, delete
+  them; js/panorama.js falls back to the background video automatically.
 - Full text: see the pack's own `LICENSE.txt` (not copied into this repo
   -- keep a copy if you need to reference it later, since it isn't
   bundled here).

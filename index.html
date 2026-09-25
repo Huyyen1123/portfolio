@@ -6,7 +6,7 @@
 <title>Huy Nguyen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/style.css?v=20260926a">
+<link rel="stylesheet" href="css/style.css?v=20260926b">
 </head>
 <body>
 
@@ -139,7 +139,12 @@
   <!-- Bottom-right: copyright, opposite corner from the player stack --
        matches the real menu's corners (version left, copyright right),
        just swapped from an earlier pass that had them backwards. -->
-  <p class="ts-corner-copyright">Built by Huy Nguyen &middot; &copy; 2026</p>
+  <p class="ts-corner-copyright">
+    <!-- Credit required by the panorama pack's license: its name plus a
+         direct link to its Modrinth page. -->
+    <span class="ts-credit">Panorama: <a href="https://modrinth.com/resourcepack/cherry-blossom-panorama" target="_blank" rel="noopener">Cherry Blossom Panorama</a> by BlueHDGaming</span>
+    <span>Built by Huy Nguyen &middot; &copy; 2026</span>
+  </p>
 </header>
 
 <!-- Settings panel -- opened by the gear button above. A dim backdrop
@@ -329,8 +334,8 @@
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
 <script src="js/vendor/three.min.js"></script>
-<script src="js/panorama.js?v=20260926a"></script>
-<script src="js/player.js?v=20260926a"></script>
-<script src="js/main.js?v=20260926a"></script>
+<script src="js/panorama.js?v=20260926b"></script>
+<script src="js/player.js?v=20260926b"></script>
+<script src="js/main.js?v=20260926b"></script>
 </body>
 </html>
