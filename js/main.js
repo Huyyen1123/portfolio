@@ -162,11 +162,12 @@
     });
   });
 
-  // ---- Player-sprite head: subtle mouse-follow, restrained ----
-  // Skips entirely under reduced motion. A few px of translation only --
-  // the sprite stays anchored in its corner, just the head drifts.
+  // ---- Player-sprite head: subtle mouse-follow (disabled) ----
+  // Turned off so the character always faces straight ahead. Flip
+  // HEAD_FOLLOW to true to bring back the few-px head drift.
+  var HEAD_FOLLOW = false;
   var playerHead = document.querySelector('.ts-player-corner .pf-head');
-  if (playerHead) {
+  if (HEAD_FOLLOW && playerHead) {
     document.addEventListener('mousemove', function (e) {
       if (settings.motion) return;
       var nx = (e.clientX / window.innerWidth - 0.5) * 2;
@@ -175,9 +176,9 @@
     });
   }
 
-  // ---- View-swapping: menu buttons open a full-screen panel instead of
-  // scrolling to a section; each panel's Back button returns to the
-  // titlescreen. GitHub is a real link (target=_blank), not part of this. ----
+  // ---- Menu windows: menu buttons open a modal window over the dimmed
+  // titlescreen; Close, the backdrop, or Esc closes it. GitHub is a real
+  // link (target=_blank), not part of this. ----
   var menuButtons = document.querySelectorAll('.ts-menu-btn[data-panel]');
   var backButtons = document.querySelectorAll('[data-back]');
   var panels = {};
@@ -191,11 +192,11 @@
     var panel = panels[name];
     if (!panel) return;
     lastTrigger = trigger || null;
-    if (titlescreen) titlescreen.classList.add('ts-hidden');
     panel.hidden = false;
     void panel.offsetWidth;
     panel.classList.add('panel-visible');
-    panel.scrollTop = 0;
+    var body = panel.querySelector('.mw-body');
+    if (body) body.scrollTop = 0;
     var heading = panel.querySelector('.section-title');
     if (heading) heading.focus();
     if (name === 'about') fireAchievementsOnce();
@@ -203,8 +204,7 @@
 
   function closePanel(panel) {
     panel.classList.remove('panel-visible');
-    if (titlescreen) titlescreen.classList.remove('ts-hidden');
-    setTimeout(function () { panel.hidden = true; }, 400);
+    setTimeout(function () { panel.hidden = true; }, 250);
     if (lastTrigger) {
       lastTrigger.focus();
       lastTrigger = null;
@@ -220,6 +220,47 @@
     btn.addEventListener('click', function () {
       var panel = btn.closest('.view-panel');
       if (panel) closePanel(panel);
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var open = document.querySelector('.view-panel.panel-visible');
+    if (open) closePanel(open);
+  });
+
+  // ---- About photo carousel: prev/next buttons, dots, arrow keys ----
+  document.querySelectorAll('[data-carousel]').forEach(function (gallery) {
+    var slides = gallery.querySelectorAll('.about-slide');
+    var dots = gallery.querySelector('.about-dots');
+    var count = gallery.querySelector('[data-carousel-count]');
+    var index = 0;
+    slides.forEach(function () { dots.appendChild(document.createElement('span')); });
+    gallery.classList.toggle('is-single', slides.length < 2);
+
+    function show(i) {
+      index = (i + slides.length) % slides.length;
+      slides.forEach(function (s, n) { s.classList.toggle('is-active', n === index); });
+      Array.prototype.forEach.call(dots.children, function (d, n) {
+        d.classList.toggle('is-active', n === index);
+      });
+      count.textContent = (index + 1) + ' / ' + slides.length;
+    }
+    gallery.querySelector('[data-carousel-prev]').addEventListener('click', function () { show(index - 1); });
+    gallery.querySelector('[data-carousel-next]').addEventListener('click', function () { show(index + 1); });
+    document.addEventListener('keydown', function (e) {
+      if (gallery.closest('.view-panel').hidden) return;
+      if (e.key === 'ArrowLeft') show(index - 1);
+      if (e.key === 'ArrowRight') show(index + 1);
+    });
+    show(0);
+  });
+
+  // ---- Experience cards: hover/focus shows details; tap toggles on touch ----
+  document.querySelectorAll('.exp-card').forEach(function (card) {
+    card.addEventListener('click', function () { card.classList.toggle('is-open'); });
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.classList.toggle('is-open'); }
     });
   });
 
@@ -256,20 +297,4 @@
     showToast(ACHIEVEMENTS[1], 550);
   }
 
-  // ---- Inventory tooltips: tap-to-toggle for touch, not just hover ----
-  var invSlots = document.querySelectorAll('.inv-slot:not(.inv-slot-locked)');
-  var invTriggers = document.querySelectorAll('.inv-trigger');
-  invTriggers.forEach(function (trigger) {
-    trigger.addEventListener('click', function () {
-      var slot = trigger.closest('.inv-slot');
-      var alreadyActive = slot.classList.contains('tooltip-active');
-      invSlots.forEach(function (s) { s.classList.remove('tooltip-active'); });
-      if (!alreadyActive) slot.classList.add('tooltip-active');
-    });
-  });
-  document.addEventListener('click', function (e) {
-    if (!e.target.closest('.inv-slot')) {
-      invSlots.forEach(function (s) { s.classList.remove('tooltip-active'); });
-    }
-  });
 })();

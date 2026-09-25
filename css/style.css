@@ -63,10 +63,12 @@ html, body{ height: 100%; overflow: hidden; }
    manual, persistent choice, independent of the OS-level setting. */
 html.motion-off .ts-petal,
 html.motion-off .ts-splash,
-html.motion-off .ts-bg,
 html.motion-off .ts-sprite{
   animation: none !important;
 }
+/* The panorama's own rotation isn't a CSS animation (js/panorama.js reads
+   this same .motion-off class directly and freezes its rotation loop),
+   so there's nothing for the global rule above to target there. */
 
 body{
   margin: 0;
@@ -163,11 +165,25 @@ button{ font: inherit; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Top-anchored with a fixed vh offset instead of pure centering --
-     puts the logo/menu block a bit higher, closer together, matching
-     the reference's composition instead of dead-center + wide gap. */
-  justify-content: flex-start;
-  padding-top: 17vh;
+  /* Top-anchored with a fluid vh offset instead of pure centering --
+     puts the logo/menu block in the upper-middle of the screen with
+     comfortable headroom, closer together, matching a real Minecraft
+     menu's composition instead of dead-center + wide gap. Scales with
+     viewport height so short windows (720p-ish) don't get pushed into
+     overflow before the menu even starts. */
+  justify-content: center;
+  /* --u: the title screen is designed at 1440x900 and scales as ONE
+     piece with the window's WIDTH -- 1px of design per 1/1440 of the
+     viewport width -- so zooming or narrowing the window never
+     rearranges the composition, it just scales it (like a game's menu).
+     Only a window shorter than 820u (e.g. very wide and short) switches
+     to height, so the logo + menu never run off the bottom. Every size
+     on the title screen is a multiple of --u. */
+  --u: min(calc(100vw / 1440), calc(100vh / 820));
+  /* Logo + menu are centred vertically, lifted by 71u (half of this
+     142u) so at 1440x900 they sit exactly where the design puts them
+     (logo top 63u from the top). */
+  padding-bottom: calc(142 * var(--u));
   text-align: center;
   opacity: 0;
   transition: opacity 600ms var(--ease);
@@ -176,31 +192,48 @@ button{ font: inherit; }
 .titlescreen.visible{ opacity: 1; }
 .titlescreen.ts-hidden{ display: none; }
 
-/* ---- Background: a real looping video (Huy's own recorded build) --
+/* ---- Background, fallback layer: the real looping video ----
    object-fit:cover is the <video> equivalent of background-size:cover.
-   The same slow translate3d drift from before is kept on top of it
-   (see danielomoregie.com research in git history for why translate3d
-   + ease-in-out was chosen over their linear background-position
-   technique) -- the footage itself is a static camera, so this drift
-   is what gives it the "camera slowly moving" feel. inset/width/height
-   oversize the layer as static overscan so the drift never exposes an
-   edge. object-position keeps the same "centered" framing a
-   background-position:center center would have given the image. */
+   No CSS pan/translate here anymore -- a flat plane sliding sideways
+   was never a real panorama, just a moving rectangle. This layer now
+   sits still and only supplies the "camera slowly moving through the
+   world" feel indirectly, by being replaced outright once the Three.js
+   cubemap panorama below loads (see .ts-panorama-host and
+   js/panorama.js). inset/width/height oversize it slightly as static
+   overscan so its own edges are never visible even without any
+   animation on top. */
 .ts-bg{
   position: fixed;
-  inset: -4%;
-  width: 108%;
-  height: 108%;
+  inset: -2%;
+  width: 104%;
+  height: 104%;
   z-index: -10;
   object-fit: cover;
   object-position: center center;
   background-color: var(--void);
-  animation: minecraftPan 60s ease-in-out infinite alternate;
-  will-change: transform;
 }
-@keyframes minecraftPan{
-  from{ transform: translate3d(-2.2%, 0, 0); }
-  to{ transform: translate3d(2.2%, 0, 0); }
+
+/* ---- Background, primary layer: Three.js cubemap panorama ----
+   js/panorama.js appends a <canvas> in here once the six
+   assets/images/panorama/panorama_N.png faces load successfully, then
+   fades it in over the video. Sits one z-index above .ts-bg so it
+   visually replaces the video the instant it's ready; opacity:0 by
+   default means a failed/slow cubemap load just leaves the video
+   showing through, untouched -- never a black gap. */
+.ts-panorama-host{
+  position: fixed;
+  inset: 0;
+  z-index: -9;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 700ms var(--ease);
+  pointer-events: none;
+}
+.ts-panorama-host.ts-panorama-visible{ opacity: 1; }
+.ts-panorama-host canvas{
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .ts-overlay{
@@ -255,11 +288,11 @@ button{ font: inherit; }
 /* ---- Top-right settings button + panel ---- */
 .ts-icon-btn{
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: calc(20 * var(--u));
+  right: calc(20 * var(--u));
   z-index: 6;
-  width: 50px;
-  height: 50px;
+  width: calc(52 * var(--u));
+  height: calc(52 * var(--u));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -273,7 +306,7 @@ button{ font: inherit; }
 .ts-icon-btn:hover, .ts-icon-btn:focus-visible{ filter: brightness(1.18); }
 .ts-icon-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
 .ts-icon-btn:active{ filter: brightness(0.88); transform: translateY(2px); }
-.ts-icon-svg{ width: 26px; height: 26px; }
+.ts-icon-svg{ width: calc(29 * var(--u)); height: calc(29 * var(--u)); }
 
 .settings-panel{ position: fixed; inset: 0; z-index: 95; }
 .settings-panel[hidden]{ display: none; }
@@ -338,6 +371,12 @@ button{ font: inherit; }
 
 /* ---- Title + splash + menu ---- */
 .ts-content{
+  /* --logo-w is the single source of truth for the whole centre stack's
+     scale -- logo, ribbon, splash and menu all derive from it, so the
+     composition (matched to the layout mockup) holds at every size. The
+     130vh term keeps short/wide windows from pushing the menu past the
+     fold. */
+  --logo-w: calc(1170 * var(--u));
   position: relative;
   z-index: 4;
   padding: 0 20px;
@@ -346,65 +385,42 @@ button{ font: inherit; }
   align-items: center;
 }
 
-/* Tied to the same width expression that sizes .ts-title-logo (below)
-   via calc(), instead of a flat px value -- a fixed px gap looked
-   right only near the logo's max rendered width and read as
-   proportionally oversized once the logo shrank on a narrower
-   viewport. Each responsive-width breakpoint for the logo gets a
-   matching version of this formula (see .ts-edition-banner too). */
-.ts-title-block{ margin-bottom: calc(min(80vw, 1250px) * 0.072); position: relative; }
+/* The logo PNG is 3:1 with its letters ending ~24% of its width down;
+   everything below that is transparent. The negative margin pulls the
+   menu up into that empty strip so it sits just under the letters. */
+.ts-title-block{
+  margin-bottom: calc(var(--logo-w) * -0.05);
+  position: relative;
+}
 /* The logo is a real image now (assets/images/huy-nguyen-logo.png) --
    no letterform geometry, no extrusion stack, no filters to maintain
    here. object-fit:contain + height:auto preserve its native aspect
    ratio at any width; it is never stretched or distorted. */
 .ts-title-logo{
+  pointer-events: none;
   display: block;
-  width: min(80vw, 1250px);
+  width: var(--logo-w);
   height: auto;
   margin: 0 auto;
   object-fit: contain;
 }
 
-/* Same maroon as the loading screen's logo panel (--loading-logo-panel)
-   -- it's the real Java-Edition-ribbon color, so the two reuse one
-   token instead of drifting apart. */
-.ts-edition-banner{
-  position: absolute;
-  left: 50%;
-  /* Same fix as .ts-title-block's margin above -- scales with the
-     logo's own responsive width instead of a flat offset. */
-  bottom: calc(min(80vw, 1250px) * -0.045);
-  transform: translateX(-50%);
-  z-index: 2;
-  background: var(--loading-logo-panel);
-  border: 2px solid #2b0d0d;
-  color: #f2c78a;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(0.5rem, 1.15vw, 0.75rem);
-  letter-spacing: 0.06em;
-  padding: 4px 16px;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
-  white-space: nowrap;
-}
-
-/* Anchored at the title's own bottom-right corner and rotated around
-   that same point (never translated further out), so the excursion
-   past the title's edge is small and bounded regardless of text
-   length -- the title container's own min(76vw,1150px) width already
-   guarantees at least 12vw of clearance to the viewport edge. Pulled
-   inward (right: 8%, smaller max-width/font) so it sits fully over the
-   logo instead of hanging off its corner. */
+/* Anchored at a point just past the logo's bottom-right letters and
+   rotated around that same point, so it reads as attached to the logo
+   the way Minecraft's splash text does. Everything is a fraction of
+   --logo-w so it tracks the logo at every size. z-index keeps it above
+   the in-flow logo <img> where their boxes overlap. */
 .ts-splash{
   position: absolute;
-  bottom: 12%;
-  right: 8%;
-  max-width: 36%;
+  z-index: 3;
+  margin: 0;
+  bottom: calc(var(--logo-w) * 0.135);
+  right: calc(var(--logo-w) * -0.05);
   white-space: nowrap;
   text-align: right;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(0.62rem, 1.7vw, 1rem);
+  font-size: calc(var(--logo-w) * 0.022);
   /* Real Minecraft splash-text color (#FFFF55) and bounce, pulled
      straight from the reference site's compiled CSS (.splash-text,
      @keyframes splashBounce) rather than approximated: 0.5s
@@ -421,12 +437,20 @@ button{ font: inherit; }
   100%{ transform: rotate(-15deg) scale(1.12); }
 }
 
+/* ~54% of the logo's width, per the mockup -- clearly narrower than
+   the logo so it reads as sitting under it. The min() floor keeps the
+   buttons usable on phones where 54% of the logo would be too thin. */
 .ts-menu{
+  /* Above .ts-title-block: the logo PNG's transparent lower strip
+     overlaps the top of "About Me" (see its negative margin) and would
+     otherwise swallow clicks there. */
+  position: relative;
+  z-index: 4;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  width: min(650px, 42vw);
-  min-width: 300px;
+  gap: calc(var(--logo-w) * 0.0095);
+  width: calc(var(--logo-w) * 0.535);
+  min-width: 0;
 }
 /* A smooth, subtle gray falloff (not hard-stopped bands) plus a thick
    near-black outer border and a thin inset bevel -- reads closer to
@@ -437,14 +461,14 @@ button{ font: inherit; }
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 68px;
+  min-height: calc(var(--logo-w) * 0.057);
   text-align: center;
   text-decoration: none;
   font-family: var(--font-display);
-  font-size: clamp(0.7rem, 1.4vw, 0.95rem);
+  font-size: calc(var(--logo-w) * 0.021);
   color: var(--offwhite);
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
-  padding: 8px 20px;
+  padding: calc(4 * var(--u)) calc(20 * var(--u));
   background: linear-gradient(180deg, #949494 0%, #848484 50%, #767676 100%);
   border: 3px solid #111;
   box-shadow:
@@ -473,44 +497,71 @@ button{ font: inherit; }
 /* ---- Bottom-left: nametag, sprite, Connect-with-me, copyright ---- */
 .ts-player-corner{
   position: absolute;
-  bottom: 16px;
-  left: 20px;
+  bottom: calc(16 * var(--u));
+  left: calc(20 * var(--u));
   z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 14px;
+  /* One spacing value for the whole column: nametag -> hair, shoes ->
+     Connect, and Connect -> version line all measure --pc-gap. */
+  --pc-gap: calc(14.4 * var(--u));
+  gap: var(--pc-gap);
 }
+/* Nametag + sprite, centred as one unit over the Connect button. */
+.ts-player{
+  align-self: center;
+  width: calc(144 * var(--u));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* + the nametag tail's overhang (5u), minus the transparent frame
+     above the hair (3/597 of the 313.2u sprite = 1.57u). */
+  gap: calc(var(--pc-gap) + 3.43 * var(--u));
+}
+.ts-player .ts-sprite{ align-self: flex-start; }
 .ts-nametag{
+  position: relative;
   display: inline-block;
-  background: rgba(15, 15, 18, 0.75);
-  border: 1px solid rgba(231, 228, 218, 0.5);
+  background: rgba(15, 15, 18, 0.8);
+  border: 1px solid rgba(231, 228, 218, 0.55);
   color: var(--offwhite);
   font-family: var(--font-display);
-  font-size: 0.6rem;
-  padding: 4px 8px;
+  font-size: calc(17.3 * var(--u));
+  line-height: 1.3;
+  padding: calc(3 * var(--u)) calc(10 * var(--u));
+}
+/* Small speech-bubble tail pointing down at the player's head: a
+   rotated square clipped to its lower half so only the part hanging
+   below the tag shows (no double-dark overlap with the tag's own
+   translucent background). */
+.ts-nametag::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: calc(8 * var(--u));
+  height: calc(8 * var(--u));
+  background: inherit;
+  border-right: inherit;
+  border-bottom: inherit;
+  transform: translate(-50%, 50%) rotate(45deg);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
 }
 .ts-sprite{
+  /* 144x313u = the 274x597 avatar frame at 1440x900. The shoes sit
+     3.15u above this box's bottom edge (6/597 transparent), so the
+     negative margin keeps them exactly --pc-gap above Connect. */
   position: relative;
-  width: 80px;
-  height: 110px;
-  /* Scaled up a bit (was 1x) for a little more presence, growing
-     downward from its top edge with a compensating margin so the
-     Connect-with-me button below doesn't collide with the extra
-     visual height (110 * (1.25 - 1) = 27.5px). A custom property (read
-     by the keyframes below too) keeps the idle-bob animation from
-     wiping the scale out on every tick -- animating `transform`
-     replaces the whole property, so the scale has to be part of every
-     keyframe, not just the resting value. */
-  --sprite-scale: 1.25;
-  transform: scale(var(--sprite-scale));
-  transform-origin: top left;
-  margin-bottom: 27.5px;
+  width: calc(144 * var(--u));
+  height: calc(313.2 * var(--u));
+  margin-bottom: calc(-3.15 * var(--u));
   animation: sprite-idle 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
 }
 @keyframes sprite-idle{
-  0%, 100%{ transform: scale(var(--sprite-scale)) translateY(0); }
-  50%{ transform: scale(var(--sprite-scale)) translateY(-3px); }
+  0%, 100%{ transform: translateY(0); }
+  50%{ transform: translateY(calc(-5.4 * var(--u))); }
 }
 .pf-head{ position: absolute; top: 0; left: 24px; width: 32px; height: 32px; background: #e8b48c; transition: transform 120ms linear; }
 .pf-hair{ position: absolute; top: 0; left: 0; width: 100%; height: 13px; background: #241a14; }
@@ -526,19 +577,43 @@ button{ font: inherit; }
 .pf-shoe-l{ left: 20px; }
 .pf-shoe-r{ left: 44px; }
 
+/* Huy's 3D-rendered Minecraft character (front view cut from his
+   character sheet). Split in two images sharing one 274x597 frame so the
+   head can still drift with the mouse (js/main.js targets .pf-head):
+   avatar-body.png is everything but the head (neck included, so no gap
+   shows when the head moves), avatar-head.png is the top 144px of the
+   frame, i.e. 144/597 = 24.12% of the sprite box's height. */
+.ts-avatar-body{
+  position: absolute;
+  inset: 0;
+  background: url('../assets/images/player-skin/avatar-body.png?v=7') center/100% 100% no-repeat;
+}
+.ts-sprite .pf-head{
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 24.12%;
+  background: url('../assets/images/player-skin/avatar-head.png?v=7') center/100% 100% no-repeat;
+}
+
+/* Compact Minecraft button sized to sit just under the player, with the
+   player group centred over it. */
 .ts-linkedin-btn{
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: calc(8.6 * var(--u));
+  width: calc(184 * var(--u));
   background: linear-gradient(180deg, #8c8c8c 0%, #8c8c8c 12%, #737373 12%, #737373 84%, #5e5e5e 84%, #5e5e5e 100%);
   border: 2px solid #1a1a1a;
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.3);
   color: var(--offwhite);
   text-decoration: none;
   font-family: var(--font-display);
-  font-size: 0.58rem;
+  font-size: calc(14.4 * var(--u));
+  white-space: nowrap;
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
-  padding: 10px 14px;
+  padding: calc(10 * var(--u)) calc(14 * var(--u));
   transition: filter 120ms var(--ease), transform 80ms var(--ease);
 }
 .ts-linkedin-btn:hover{ filter: brightness(1.15); }
@@ -548,18 +623,19 @@ button{ font: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: calc(27.4 * var(--u));
+  height: calc(27.4 * var(--u));
   background: #0a66c2;
   flex-shrink: 0;
 }
-.ts-linkedin-icon{ width: 12px; height: 12px; fill: #ffffff; }
+.ts-linkedin-icon{ width: 70%; height: 70%; fill: #ffffff; }
+
 /* Flows inline within .ts-player-corner's stack -- bottom-left, next to
    the version's real-Minecraft home. */
 .ts-corner-version{
   margin: 0;
   font-family: var(--font-display);
-  font-size: 0.55rem;
+  font-size: calc(8.8 * var(--u));
   color: rgba(255, 255, 255, 0.85);
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
 }
@@ -567,47 +643,299 @@ button{ font: inherit; }
 /* ---- Bottom-right: copyright, opposite corner ---- */
 .ts-corner-copyright{
   position: absolute;
-  bottom: 16px;
-  right: 20px;
+  bottom: calc(16 * var(--u));
+  right: calc(20 * var(--u));
   z-index: 5;
   margin: 0;
   font-family: var(--font-display);
-  font-size: 0.55rem;
+  font-size: calc(8.8 * var(--u));
   color: rgba(255, 255, 255, 0.6);
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
 }
 
-/* Shorter viewports (e.g. 1280x720): tighten vertical rhythm so nothing
-   in the corner stacks or the centered content collides. */
-@media (max-height: 760px){
-  .ts-title-block{ margin-bottom: calc(min(64vw, 820px) * 0.056); }
-  .ts-title-logo{ width: min(64vw, 820px); }
-  .ts-edition-banner{ bottom: calc(min(64vw, 820px) * -0.039); }
-  .ts-menu{ gap: 3px; }
-  .ts-menu-btn{ min-height: 52px; padding: 6px 20px; }
-  .ts-player-corner{ gap: 8px; }
-  .ts-sprite{ --sprite-scale: 0.75; transform-origin: bottom left; margin-bottom: 0; }
-}
-
-/* ---- Full-screen swapped panels (About / Experience / Projects) ---- */
+/* ---- Menu windows (About / Experience / Projects) ----
+   A modal window over the dimmed titlescreen: grey-bordered frame, a
+   "[ TITLE ]" header bar with a Close button, and a near-black body.
+   Everything inside uses the pixel display font. */
 .view-panel{
   position: fixed;
   inset: 0;
   z-index: 70;
-  background: var(--void);
-  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 4vh, 48px) clamp(10px, 3vw, 40px);
   opacity: 0;
-  transition: opacity 400ms var(--ease);
+  transition: opacity 220ms var(--ease);
 }
 .view-panel[hidden]{ display: none; }
 .view-panel.panel-visible{ opacity: 1; }
-
-.view-panel-inner{
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 70px 24px 60px;
+.mw-backdrop{
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.78);
+  cursor: pointer;
+}
+.mw{
+  position: relative;
+  width: min(1120px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #111113;
+  border: 3px solid #5a5a5a;
+  box-shadow: 0 0 0 3px #1a1a1a, 0 20px 60px rgba(0, 0, 0, 0.6);
+  font-family: var(--font-display);
+  color: #f2f0ea;
+  transform: translateY(10px);
+  transition: transform 220ms var(--ease);
+}
+.panel-visible .mw{ transform: none; }
+.mw-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: clamp(14px, 2.2vh, 22px) clamp(16px, 2.4vw, 32px);
+  background: #2c2c2e;
+  border-bottom: 3px solid #5a5a5a;
+}
+.mw-title{
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 2vw, 1.55rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+}
+.mw-title:focus{ outline: none; }
+.mw-close{
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 1.5vw, 1.2rem);
+  color: #b9b9b9;
+  cursor: pointer;
+  transition: color 120ms var(--ease);
+}
+.mw-close span{ font-size: 0.8em; margin-right: 6px; }
+.mw-close:hover, .mw-close:focus-visible{ color: #ff5f5f; }
+.mw-close:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
+.mw-body{
+  overflow-y: auto;
+  padding: clamp(18px, 3vh, 34px) clamp(16px, 2.4vw, 34px);
 }
 
+.mw-kicker{
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffd84a;
+}
+.mw-kicker:not(:first-child){ margin-top: 30px; }
+.mw-text{ margin: 0; font-size: 0.95rem; line-height: 1.7; }
+.mw-strong{ margin: 0 0 4px; font-size: 1rem; font-weight: 700; }
+.mw-muted{ margin: 0; font-size: 0.85rem; line-height: 1.7; color: #a3a3a3; }
+.mw-hint{ margin: 0 0 20px; font-size: 0.9rem; color: #c9c9c9; }
+
+/* Same grey Minecraft button face as the title menu, full width. */
+.mw-wide-btn{
+  display: block;
+  margin-top: 34px;
+  padding: 14px 16px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--offwhite);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  background: linear-gradient(180deg, #949494 0%, #848484 50%, #767676 100%);
+  border: 3px solid #111;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.35), inset -2px -2px 0 rgba(0, 0, 0, 0.35);
+  transition: background 120ms var(--ease), color 120ms var(--ease);
+}
+.mw-wide-btn:hover, .mw-wide-btn:focus-visible{
+  color: #ffff55;
+  text-shadow: 2px 2px 0 #3f3f00;
+  background: linear-gradient(180deg, #7e8fc4 0%, #6e7fb4 50%, #5f70a4 100%);
+}
+.mw-wide-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
+
+.bio-link{ color: var(--diamond); text-decoration: none; }
+.bio-link:hover{ text-decoration: underline; }
+.bio-link:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
+
+/* ---- About: photo carousel + player info ---- */
+.about-grid{
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+}
+.about-frame{
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border: 3px solid #5a5a5a;
+  background: #1b1b1d;
+  overflow: hidden;
+}
+.about-slide{
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: none;
+}
+.about-slide.is-active{ display: block; }
+.about-slide > img{ width: 100%; height: 100%; object-fit: cover; }
+/* The character slide: the avatar standing on the site's own panorama. */
+.about-slide-avatar{
+  background: url('../assets/images/background.png') center/cover no-repeat;
+}
+.about-slide-avatar > img{
+  position: absolute;
+  left: 50%;
+  bottom: 13%;
+  width: auto;
+  height: 74%;
+  transform: translateX(-50%);
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+}
+.about-slide figcaption{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 16px;
+  background: rgba(22, 22, 24, 0.92);
+  border-top: 2px solid #3c3c3c;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.about-nav{
+  position: absolute;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #ffffff;
+  background: rgba(30, 30, 32, 0.85);
+  border: 2px solid #6a6a6a;
+  cursor: pointer;
+}
+.about-nav:hover{ background: #3a3a3e; }
+.about-nav:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
+.about-prev{ left: 8px; }
+.about-next{ right: 8px; }
+.about-dots{ display: flex; justify-content: center; gap: 10px; margin-top: 16px; }
+.about-dots span{ width: 9px; height: 9px; background: #555; }
+.about-dots span.is-active{ background: #62d34f; }
+.about-count{ margin: 12px 0 0; text-align: center; font-size: 0.78rem; color: #8d8d8d; }
+.is-single .about-nav, .is-single .about-count{ display: none; }
+
+.about-name{ margin: 0 0 12px; font-size: clamp(1.3rem, 2.2vw, 1.75rem); font-weight: 700; }
+.about-contact{ margin-top: 10px; }
+.skill-chips{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.skill-chips li{
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #2b2b2d;
+  border: 2px solid #585858;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* ---- Experience: flip-on-hover cards with a coloured left edge ---- */
+.exp-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+}
+.exp-card{
+  position: relative;
+  min-height: clamp(220px, 32vh, 320px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 28px;
+  text-align: center;
+  background: #1c1c1e;
+  border: 2px solid #3a3a3c;
+  border-left: 6px solid var(--accent);
+  cursor: pointer;
+  transition: background 150ms var(--ease);
+}
+.exp-card:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
+.exp-org{ margin: 0 0 14px; font-size: clamp(1.1rem, 2vw, 1.55rem); font-weight: 700; }
+.exp-role{ margin: 0 0 14px; font-size: clamp(0.85rem, 1.3vw, 1.05rem); font-weight: 700; color: var(--accent); }
+.exp-dates{ margin: 0 0 10px; font-size: 0.9rem; color: #bdbdbd; }
+.exp-place{ margin: 0 0 16px; font-size: 0.8rem; color: #8a8a8a; }
+.exp-more{ margin: 0; font-size: 0.7rem; color: #6f6f6f; }
+.exp-back{ display: none; }
+.exp-back p{ margin: 0; font-size: 0.95rem; line-height: 1.7; text-align: left; }
+.exp-card:hover, .exp-card:focus-visible, .exp-card.is-open{ background: #222226; }
+.exp-card:hover .exp-front, .exp-card:focus-visible .exp-front, .exp-card.is-open .exp-front{ display: none; }
+.exp-card:hover .exp-back, .exp-card:focus-visible .exp-back, .exp-card.is-open .exp-back{ display: block; }
+
+/* ---- Projects: stacked cards with a thick coloured left edge ---- */
+.proj-list{ display: flex; flex-direction: column; gap: clamp(18px, 2.6vh, 30px); }
+.proj-card{
+  padding: clamp(20px, 3vh, 34px) clamp(20px, 3vw, 40px);
+  background: #1a1a1c;
+  border: 2px solid #3a3a3c;
+  border-left: 8px solid var(--accent);
+}
+.proj-title{
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 16px;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: 700;
+}
+.proj-icon{ font-size: 1.1em; }
+.proj-tags{ list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.proj-tags li{
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+.proj-points{ list-style: none; margin: 0 0 16px; padding: 0; }
+.proj-points li{
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.proj-points li::before{
+  content: "\25B8";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+.proj-link{ font-size: 0.85rem; font-weight: 700; color: var(--accent); text-decoration: none; }
+.proj-link:hover{ text-decoration: underline; }
+.proj-link:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
+
+/* Back button -- used by the Settings panel. */
 .ts-back-btn{
   display: inline-block;
   margin-bottom: 28px;
@@ -630,55 +958,6 @@ button{ font: inherit; }
 }
 .ts-back-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
 .ts-back-btn:active{ transform: translateY(2px); box-shadow: 0 0 0 #2e2e2e; }
-
-.panel-footer{
-  margin: 60px 0 0;
-  font-size: 0.7rem;
-  color: var(--stone);
-  text-align: center;
-}
-
-.section-title{
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  color: var(--gold);
-  margin: 0 0 32px;
-}
-.section-title:focus{ outline: 2px solid var(--diamond); outline-offset: 6px; }
-.section-hint{ font-size: 0.78rem; color: var(--stone); margin: -20px 0 24px; }
-
-/* ---- About / character sheet ---- */
-.char-sheet{
-  display: flex;
-  gap: 44px;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-.avatar-block{
-  flex-shrink: 0;
-  width: 140px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.pixel-figure{ position: relative; width: 80px; height: 110px; }
-.avatar-label{
-  font-size: 0.62rem;
-  color: var(--stone);
-  text-align: center;
-  border: 1px dashed var(--stone);
-  padding: 4px 8px;
-}
-
-.bio{ flex: 1; min-width: 260px; }
-.bio p{ margin: 0 0 16px; font-size: 0.95rem; max-width: 70ch; }
-.bio p:last-child{ margin-bottom: 0; }
-.bio-contact{ font-size: 0.85rem; color: var(--stone); }
-.bio-link{ color: var(--diamond); text-decoration: none; }
-.bio-link:hover{ text-decoration: underline; }
-.bio-link:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
 
 /* ---- Achievement toasts ---- */
 .toast-container{
@@ -727,131 +1006,12 @@ button{ font: inherit; }
 .achievement-label{ font-size: 0.6rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; }
 .achievement-title{ font-size: 0.85rem; color: var(--offwhite); font-weight: 700; }
 
-/* ---- Experience / quest log ---- */
-.quest-log{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 20px; }
-.quest{
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  background: rgba(139, 139, 139, 0.06);
-  border: 1px solid rgba(139, 139, 139, 0.25);
-  padding: 18px 20px;
-}
-.quest-marker{
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--gold);
-  color: var(--void);
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-}
-.quest-body{ flex: 1; min-width: 0; }
-.quest-title-row{
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-.quest-title{ margin: 0; font-size: 1rem; font-weight: 700; color: var(--offwhite); }
-.quest-dates{ font-size: 0.75rem; color: var(--diamond); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.quest-org{ margin: 0 0 8px; font-size: 0.8rem; color: var(--stone); }
-.quest-desc{ margin: 0; font-size: 0.88rem; max-width: 65ch; }
-
-/* ---- Projects / inventory grid ---- */
-.inventory-grid{
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
-  max-width: 520px;
-}
-.inv-slot{
-  position: relative;
-  aspect-ratio: 1;
-  background: rgba(139, 139, 139, 0.1);
-  border: 2px solid var(--stone);
-  color: inherit;
-}
-.inv-slot:not(.inv-slot-locked):hover{
-  border-color: var(--diamond);
-  background: rgba(76, 211, 211, 0.08);
-}
-.inv-trigger{
-  background: none;
-  border: none;
-  margin: 0;
-  padding: 8px 4px;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  color: inherit;
-  font: inherit;
-}
-.inv-trigger:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
-.inv-icon{ width: 28px; height: 28px; display: block; }
-.inv-icon-macrofind{ background: linear-gradient(135deg, var(--grass), #3f6b28); }
-.inv-icon-grade{ background: linear-gradient(135deg, var(--diamond), #2a9d9d); }
-.inv-icon-chalk{ background: linear-gradient(135deg, var(--gold), #b98a2e); }
-.inv-name{ font-size: 0.6rem; text-align: center; line-height: 1.25; }
-
-.inv-slot-locked{ cursor: default; border-style: dashed; opacity: 0.5; }
-.inv-lock{ font-family: var(--font-display); font-size: 1.1rem; color: var(--stone); }
-
-.inv-tooltip{
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  width: 220px;
-  transform: translateX(-50%) translateY(6px);
-  background: linear-gradient(180deg, #241f14, #16130d);
-  border: 1px solid var(--gold);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  text-align: left;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 150ms var(--ease), transform 150ms var(--ease);
-  z-index: 30;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-}
-.inv-tooltip strong{ color: var(--gold); font-size: 0.85rem; }
-.inv-tooltip span{ font-size: 0.76rem; color: var(--offwhite); line-height: 1.4; }
-.inv-tags{ color: var(--stone) !important; font-size: 0.68rem !important; }
-.inv-link{ color: var(--diamond); font-size: 0.72rem; text-decoration: none; }
-.inv-link:hover{ text-decoration: underline; }
-
-.inv-slot:hover .inv-tooltip,
-.inv-trigger:focus-visible ~ .inv-tooltip,
-.inv-slot.tooltip-active .inv-tooltip{
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
-}
-
 /* ---- Small screens ---- */
 @media (max-width: 640px){
-  .view-panel-inner{ padding: 60px 16px 40px; }
-  .char-sheet{ flex-direction: column; }
-  .inventory-grid{ grid-template-columns: repeat(2, 1fr); max-width: 280px; }
-  .ts-menu{ width: min(400px, 92vw); min-width: 0; }
+  .about-grid, .exp-grid{ grid-template-columns: minmax(0, 1fr); }
+  .about-gallery{ max-width: 320px; margin: 0 auto; width: 100%; }
   .loading-logo{ padding: 24px 32px; }
-  .ts-title-logo{ width: min(90vw, 480px); }
-  /* Previously missing at this breakpoint entirely -- the logo shrank
-     here but the gap/ribbon offsets kept inheriting the desktop
-     values (or the 760px-height ones), reading as oversized next to
-     a much smaller logo. */
-  .ts-title-block{ margin-bottom: calc(min(90vw, 480px) * 0.072); }
-  .ts-edition-banner{ bottom: calc(min(90vw, 480px) * -0.045); }
+  /* .ts-menu / .ts-title-logo / .ts-title-block no longer need an
+     override here -- --logo-w and the menu's own clamp()s already
+     scale down cohesively below 640px. */
 }

@@ -28,20 +28,30 @@
 </div>
 
 <header class="titlescreen" id="titlescreen">
-  <!-- Background: a real looping video, not procedural CSS art -- a
-       15s clip from Huy's own Minecraft world (a night-time cherry-
-       blossom village build), screen-recorded and trimmed to a clean,
-       seamless loop (static camera, so the loop point is nearly
-       invisible). muted+autoplay+playsinline is required for this to
-       autoplay across browsers/iOS without a user gesture. The PNG is
-       kept as the poster (shown before the first frame decodes) and as
-       true fallback content for the rare browser with no video
-       support at all. -->
-  <video class="ts-bg" aria-hidden="true" autoplay muted loop playsinline poster="assets/images/background.png">
+  <!-- Background, primary: a real Three.js cubemap panorama (js/panorama.js)
+       -- the camera rotates slowly inside a 360deg skybox built from
+       assets/images/panorama/panorama_0.png..panorama_5.png (the "Cherry
+       Blossom Panorama" resource pack by BlueHDGaming -- license/credit
+       requirements in that folder's README.md), the same technique the
+       real Minecraft title screen uses. If those six files are ever
+       missing, panorama.js's loader fails silently and the video below
+       is left exactly as it is.
+
+       Background, fallback: a real looping video -- a 15s clip from
+       Huy's own Minecraft world (a night-time cherry-blossom village
+       build), screen-recorded and trimmed to a loop. It's a single flat
+       plane with no depth/parallax, so it's a stand-in, not a
+       substitute for the real panorama above. muted+autoplay+playsinline
+       is required for this to autoplay across browsers/iOS without a
+       user gesture. The PNG is kept as the poster (shown before the
+       first frame decodes) and as true fallback content for the rare
+       browser with no video support at all. -->
+  <video class="ts-bg" id="ts-bg-video" aria-hidden="true" autoplay muted loop playsinline poster="assets/images/background.png">
     <source src="assets/video/background.webm" type="video/webm">
     <source src="assets/video/background.mp4" type="video/mp4">
     <img src="assets/images/background.png" alt="">
   </video>
+  <div id="ts-panorama-host" class="ts-panorama-host" aria-hidden="true"></div>
   <div class="ts-overlay" aria-hidden="true"></div>
 
   <!-- Falling cherry-blossom petals -- small pixel-plus shapes drifting
@@ -92,16 +102,11 @@
            actual artwork. object-fit:contain preserves its aspect
            ratio at any width -- never stretched. -->
       <img class="ts-title-logo" src="assets/images/huy-nguyen-logo.png" alt="Huy Nguyen">
-      <!-- The real menu hangs a small maroon "JAVA EDITION" ribbon
-           directly under the logo, separate from the yellow splash
-           text off to the side -- this is that ribbon's portfolio
-           equivalent, not a duplicate of the splash. -->
-      <div class="ts-edition-banner" aria-hidden="true">Portfolio Edition</div>
       <p class="ts-splash">Software Engineer!</p>
     </div>
 
     <nav class="ts-menu" aria-label="Main navigation">
-      <button type="button" class="ts-menu-btn" data-panel="about">About</button>
+      <button type="button" class="ts-menu-btn" data-panel="about">About Me</button>
       <button type="button" class="ts-menu-btn" data-panel="experience">Experience</button>
       <button type="button" class="ts-menu-btn" data-panel="projects">Projects</button>
       <a class="ts-menu-btn" href="https://github.com/Huyyen1123" target="_blank" rel="noopener">GitHub</a>
@@ -110,16 +115,12 @@
 
   <!-- Bottom-left: nametag, sprite, Connect-with-me button, copyright. -->
   <div class="ts-player-corner">
-    <span class="ts-nametag">Huy</span>
-    <div class="ts-sprite" aria-hidden="true">
-      <div class="pf-head"><div class="pf-hair"></div></div>
-      <div class="pf-body"><div class="pf-shirt"></div></div>
-      <div class="pf-arm pf-arm-l"></div>
-      <div class="pf-arm pf-arm-r"></div>
-      <div class="pf-leg pf-leg-l"></div>
-      <div class="pf-leg pf-leg-r"></div>
-      <div class="pf-shoe pf-shoe-l"></div>
-      <div class="pf-shoe pf-shoe-r"></div>
+    <div class="ts-player">
+      <span class="ts-nametag">Huy</span>
+      <div class="ts-sprite" aria-hidden="true">
+        <div class="ts-avatar-body"></div>
+        <div class="pf-head"></div>
+      </div>
     </div>
     <a class="ts-linkedin-btn" href="YOUR_LINKEDIN_URL">
       <span class="ts-linkedin-icon-box" aria-hidden="true">
@@ -127,15 +128,15 @@
           <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/>
         </svg>
       </span>
-      Connect with me
+      Connect
     </a>
-    <p class="ts-corner-version">v1.0.0</p>
+    <p class="ts-corner-version">Huy's Portfolio v1.0.0</p>
   </div>
 
   <!-- Bottom-right: copyright, opposite corner from the player stack --
        matches the real menu's corners (version left, copyright right),
        just swapped from an earlier pass that had them backwards. -->
-  <p class="ts-corner-copyright">&copy; 2026 Huy Nguyen. All rights reserved.</p>
+  <p class="ts-corner-copyright">Built by Huy Nguyen &middot; &copy; 2026</p>
 </header>
 
 <!-- Settings panel -- opened by the gear button above. A dim backdrop
@@ -165,125 +166,143 @@
      toggle in Settings will play/pause/loop it immediately. -->
 <audio id="bg-music" loop preload="none"></audio>
 
-<!-- Full-screen swapped views. Hidden by default; JS shows one at a time
-     and hides the titlescreen behind it. Each has its own Back button. -->
+<!-- Menu windows (About / Experience / Projects). Each is a modal window
+     over the dimmed titlescreen: a "[ TITLE ]" header bar with a Close
+     button, then the content. Hidden by default; js/main.js opens one at a
+     time. Clicking the dim backdrop or pressing Esc also closes it. -->
 <div class="view-panel" id="panel-about" data-panel="about" hidden>
-  <div class="view-panel-inner">
-    <button type="button" class="ts-back-btn" data-back>&larr; Back</button>
-    <h2 class="section-title" tabindex="-1">About</h2>
-    <div class="char-sheet">
-      <div class="avatar-block" aria-hidden="true">
-        <div class="pixel-figure">
-          <div class="pf-head"><div class="pf-hair"></div></div>
-          <div class="pf-body"><div class="pf-shirt"></div></div>
-          <div class="pf-arm pf-arm-l"></div>
-          <div class="pf-arm pf-arm-r"></div>
-          <div class="pf-leg pf-leg-l"></div>
-          <div class="pf-leg pf-leg-r"></div>
-          <div class="pf-shoe pf-shoe-l"></div>
-          <div class="pf-shoe pf-shoe-r"></div>
+  <button type="button" class="mw-backdrop" data-back tabindex="-1" aria-label="Close"></button>
+  <div class="mw" role="dialog" aria-modal="true" aria-labelledby="mw-title-about">
+    <header class="mw-head">
+      <h2 class="mw-title section-title" id="mw-title-about" tabindex="-1">[ About Me ]</h2>
+      <button type="button" class="mw-close" data-back><span aria-hidden="true">&times;</span> Close</button>
+    </header>
+    <div class="mw-body about-grid">
+      <!-- Photo carousel. Add photos as more .about-slide figures
+           (assets/images/about/...), each with a short caption. -->
+      <div class="about-gallery" data-carousel>
+        <div class="about-frame">
+          <figure class="about-slide about-slide-avatar is-active">
+            <img src="assets/images/player-skin/avatar-full.png" alt="Huy's Minecraft character">
+            <figcaption>My Minecraft character.</figcaption>
+          </figure>
+          <button type="button" class="about-nav about-prev" data-carousel-prev aria-label="Previous photo">&lsaquo;</button>
+          <button type="button" class="about-nav about-next" data-carousel-next aria-label="Next photo">&rsaquo;</button>
         </div>
-        <span class="avatar-label">[[PLACEHOLDER: avatar/photo]]</span>
+        <div class="about-dots" aria-hidden="true"></div>
+        <p class="about-count"><span data-carousel-count>1 / 1</span> &mdash; use &lsaquo; &rsaquo; to browse</p>
       </div>
-      <div class="bio">
-        <p>I'm a Computer Science student at the University of Houston, maintaining a 4.0 GPA after transferring from Lone Star College. I build full-stack web apps end to end &mdash; Flask backends, SQLite databases, REST APIs &mdash; and deploy and host them myself instead of leaving them running locally.</p>
-        <p>Outside of code, I tutor math weekly and put the same stubbornness into endurance sports.</p>
-        <p class="bio-contact">Reach me at <a class="bio-link" href="mailto:huyhnguyen2311@gmail.com">huyhnguyen2311@gmail.com</a>.</p>
+
+      <div class="about-info">
+        <h3 class="mw-kicker">// Player Info</h3>
+        <p class="about-name">Huy Nguyen</p>
+        <p class="mw-text">I build full-stack web apps end to end &mdash; Flask backends, SQLite databases, REST APIs &mdash; and deploy and host them myself instead of leaving them running locally.</p>
+        <p class="mw-muted about-contact">Reach me at <a class="bio-link" href="mailto:huyhnguyen2311@gmail.com">huyhnguyen2311@gmail.com</a></p>
+
+        <h3 class="mw-kicker">// Education</h3>
+        <p class="mw-strong">University of Houston</p>
+        <p class="mw-muted">B.S. Computer Science &mdash; 4.0 GPA</p>
+        <p class="mw-muted">Transferred from Lone Star College</p>
+
+        <h3 class="mw-kicker">// Interests</h3>
+        <p class="mw-text">Tutoring math every week, and putting the same stubbornness into endurance sports &mdash; marathons and a half Ironman.</p>
+
+        <h3 class="mw-kicker">// Skill Inventory</h3>
+        <ul class="skill-chips">
+          <li>Python</li><li>C++</li><li>JavaScript</li><li>HTML</li><li>CSS</li><li>SQL</li>
+          <li>Flask</li><li>Django</li><li>SQLite</li><li>REST APIs</li>
+        </ul>
+
+        <!-- Replace YOUR_RESUME_URL with a link to your resume PDF. -->
+        <a class="mw-wide-btn" href="YOUR_RESUME_URL" target="_blank" rel="noopener">[&darr;] View Resume</a>
       </div>
     </div>
-    <p class="panel-footer">Built in creative mode. Debugged in survival.</p>
   </div>
 </div>
 
 <div class="view-panel" id="panel-experience" data-panel="experience" hidden>
-  <div class="view-panel-inner">
-    <button type="button" class="ts-back-btn" data-back>&larr; Back</button>
-    <h2 class="section-title" tabindex="-1">Experience</h2>
-    <ul class="quest-log">
-      <li class="quest">
-        <span class="quest-marker" aria-hidden="true">!</span>
-        <div class="quest-body">
-          <div class="quest-title-row">
-            <h3 class="quest-title">Web Developer &mdash; Multiple Student Clubs</h3>
-            <span class="quest-dates">2024&ndash;2025</span>
+  <button type="button" class="mw-backdrop" data-back tabindex="-1" aria-label="Close"></button>
+  <div class="mw" role="dialog" aria-modal="true" aria-labelledby="mw-title-experience">
+    <header class="mw-head">
+      <h2 class="mw-title section-title" id="mw-title-experience" tabindex="-1">[ Experience Log ]</h2>
+      <button type="button" class="mw-close" data-back><span aria-hidden="true">&times;</span> Close</button>
+    </header>
+    <div class="mw-body">
+      <p class="mw-hint">Hover over a card to see what I did there.</p>
+      <div class="exp-grid">
+        <!-- Each card flips to its details on hover, keyboard focus, or tap. -->
+        <article class="exp-card" tabindex="0" style="--accent:#e8b84b">
+          <div class="exp-front">
+            <h3 class="exp-org">Multiple Student Clubs</h3>
+            <p class="exp-role">Web Developer</p>
+            <p class="exp-dates">2024 &ndash; 2025</p>
+            <p class="exp-place">Lone Star College &middot; Houston, TX</p>
+            <p class="exp-more">[ hover to see more ]</p>
           </div>
-          <p class="quest-org">Lone Star College &middot; Houston, TX</p>
-          <p class="quest-desc">Built and self-hosted Flask/Django sites for campus clubs (up to 50 members) &mdash; sign-up databases, an event calendar, and registration forms, kept live and updated all year.</p>
-        </div>
-      </li>
-      <li class="quest">
-        <span class="quest-marker" aria-hidden="true">!</span>
-        <div class="quest-body">
-          <div class="quest-title-row">
-            <h3 class="quest-title">Math Tutor</h3>
-            <span class="quest-dates">2024&ndash;2025</span>
+          <div class="exp-back">
+            <p>Built and self-hosted Flask/Django sites for campus clubs (up to 50 members) &mdash; sign-up databases, an event calendar, and registration forms, kept live and updated all year.</p>
           </div>
-          <p class="quest-org">Lone Star College &middot; Houston, TX</p>
-          <p class="quest-desc">Tutor students weekly in Calculus, Discrete Math, and intro-level courses, working through homework and exam prep.</p>
-        </div>
-      </li>
-    </ul>
-    <p class="panel-footer">Built in creative mode. Debugged in survival.</p>
+        </article>
+        <article class="exp-card" tabindex="0" style="--accent:#4cd3d3">
+          <div class="exp-front">
+            <h3 class="exp-org">Lone Star College</h3>
+            <p class="exp-role">Math Tutor</p>
+            <p class="exp-dates">2024 &ndash; 2025</p>
+            <p class="exp-place">Houston, TX</p>
+            <p class="exp-more">[ hover to see more ]</p>
+          </div>
+          <div class="exp-back">
+            <p>Tutor students weekly in Calculus, Discrete Math, and intro-level courses, working through homework and exam prep.</p>
+          </div>
+        </article>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="view-panel" id="panel-projects" data-panel="projects" hidden>
-  <div class="view-panel-inner">
-    <button type="button" class="ts-back-btn" data-back>&larr; Back</button>
-    <h2 class="section-title" tabindex="-1">Projects</h2>
-    <p class="section-hint">Tap or hover a slot.</p>
-    <div class="inventory-grid">
-
-      <div class="inv-slot" data-slot="1">
-        <button type="button" class="inv-trigger" aria-describedby="tip-macrofind">
-          <span class="inv-icon inv-icon-macrofind" aria-hidden="true"></span>
-          <span class="inv-name">MacroFind</span>
-        </button>
-        <span class="inv-tooltip" role="tooltip" id="tip-macrofind">
-          <strong>MacroFind</strong>
-          <span>Finds fast food menu items that fit your macros &mdash; real nearby chains via geolocation, real nutrition data, custom macro filters.</span>
-          <span class="inv-tags">Python &middot; Flask &middot; SQLite &middot; REST APIs</span>
-          <a href="https://github.com/Huyyen1123/macrofind" target="_blank" rel="noopener" class="inv-link">Right-click to view repo &rarr;</a>
-        </span>
-      </div>
-
-      <div class="inv-slot" data-slot="2">
-        <button type="button" class="inv-trigger" aria-describedby="tip-grade">
-          <span class="inv-icon inv-icon-grade" aria-hidden="true"></span>
-          <span class="inv-name">Grade Calc</span>
-        </button>
-        <span class="inv-tooltip" role="tooltip" id="tip-grade">
-          <strong>Grade Calculator</strong>
-          <span>Computes weighted grades across homework, tests, and finals, with input validation so it doesn't break &mdash; split cleanly across multiple .cpp/.h files.</span>
-          <span class="inv-tags">C++</span>
-          <a href="[[PLACEHOLDER: repo link]]" class="inv-link">Right-click to view repo &rarr;</a>
-        </span>
-      </div>
-
-      <div class="inv-slot" data-slot="3">
-        <button type="button" class="inv-trigger" aria-describedby="tip-chalk">
-          <span class="inv-icon inv-icon-chalk" aria-hidden="true"></span>
-          <span class="inv-name">Chalk &amp; Slate</span>
-        </button>
-        <span class="inv-tooltip" role="tooltip" id="tip-chalk">
-          <strong>Chalk &amp; Slate</strong>
-          <span>A hand-chalked tic-tac-toe board with a running scoreboard, drawn in slate and gold.</span>
-          <span class="inv-tags">HTML &middot; CSS &middot; JS</span>
-          <a href="https://claude.ai/code/artifact/1d275d39-6da8-4818-892b-410502d84ecb" target="_blank" rel="noopener" class="inv-link">Right-click to view repo &rarr;</a>
-        </span>
-      </div>
-
-      <div class="inv-slot inv-slot-locked" aria-hidden="true"><span class="inv-lock">?</span></div>
-      <div class="inv-slot inv-slot-locked" aria-hidden="true"><span class="inv-lock">?</span></div>
-      <div class="inv-slot inv-slot-locked" aria-hidden="true"><span class="inv-lock">?</span></div>
-
+  <button type="button" class="mw-backdrop" data-back tabindex="-1" aria-label="Close"></button>
+  <div class="mw" role="dialog" aria-modal="true" aria-labelledby="mw-title-projects">
+    <header class="mw-head">
+      <h2 class="mw-title section-title" id="mw-title-projects" tabindex="-1">[ Projects ]</h2>
+      <button type="button" class="mw-close" data-back><span aria-hidden="true">&times;</span> Close</button>
+    </header>
+    <div class="mw-body proj-list">
+      <article class="proj-card" style="--accent:#5b8c3a">
+        <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#127828;</span>MacroFind</h3>
+        <ul class="proj-tags"><li>Python</li><li>Flask</li><li>SQLite</li><li>REST APIs</li></ul>
+        <ul class="proj-points">
+          <li>Finds fast food menu items that fit your macros.</li>
+          <li>Pulls real nearby chains via geolocation, with real nutrition data and custom macro filters.</li>
+        </ul>
+        <a class="proj-link" href="https://github.com/Huyyen1123/macrofind" target="_blank" rel="noopener">View repo &rarr;</a>
+      </article>
+      <article class="proj-card" style="--accent:#4cd3d3">
+        <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#129518;</span>Grade Calculator</h3>
+        <ul class="proj-tags"><li>C++</li></ul>
+        <ul class="proj-points">
+          <li>Computes weighted grades across homework, tests, and finals.</li>
+          <li>Input validation so it doesn't break, split cleanly across multiple .cpp/.h files.</li>
+        </ul>
+        <!-- Replace [[PLACEHOLDER: repo link]] with the repo URL. -->
+        <a class="proj-link" href="[[PLACEHOLDER: repo link]]">View repo &rarr;</a>
+      </article>
+      <article class="proj-card" style="--accent:#e8b84b">
+        <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#9999;&#65039;</span>Chalk &amp; Slate</h3>
+        <ul class="proj-tags"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
+        <ul class="proj-points">
+          <li>A hand-chalked tic-tac-toe board with a running scoreboard, drawn in slate and gold.</li>
+        </ul>
+        <a class="proj-link" href="https://claude.ai/code/artifact/1d275d39-6da8-4818-892b-410502d84ecb" target="_blank" rel="noopener">Play it &rarr;</a>
+      </article>
     </div>
-    <p class="panel-footer">Built in creative mode. Debugged in survival.</p>
   </div>
 </div>
 
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
+<script src="js/vendor/three.min.js"></script>
+<script src="js/panorama.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

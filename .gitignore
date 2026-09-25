@@ -1,1 +1,8 @@
 .DS_Store
+
+# Third-party "Cherry Blossom Panorama" pack (BlueHDGaming) -- its license
+# forbids re-uploading the raw files, so they stay local only. Without them
+# js/panorama.js falls back to the background video. See the README.md in
+# each folder.
+assets/images/panorama/*.webp
+assets/images/panorama-originals/*.png
