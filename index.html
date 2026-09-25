@@ -6,24 +6,24 @@
 <title>Huy Nguyen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/style.css?v=20260925n">
+<link rel="stylesheet" href="css/style.css?v=20260926a">
 </head>
 <body>
 
+<!-- Startup screen: a studio-logo banner on a dark screen, with the
+     loading status, a thin progress bar and the copyright along the
+     bottom. -->
 <div class="loading-screen" id="loading-screen">
   <div class="loading-logo">
     <span class="loading-logo-name">HUY</span>
     <span class="loading-logo-sub">STUDIOS</span>
   </div>
-  <div class="loading-bar-wrap">
+  <div class="loading-bottom">
     <p class="loading-label" id="loading-label" aria-live="polite">Loading world...</p>
-    <div class="loading-bar-track">
+    <div class="loading-bar-track" aria-hidden="true">
       <div class="loading-bar-fill" id="loading-bar-fill"></div>
     </div>
-  </div>
-  <div class="quiet-footer">
-    <span>&copy; 2026 Huy Nguyen. All rights reserved.</span>
-    <span>v1.0.0</span>
+    <p class="loading-copyright">&copy; 2026 Huy Nguyen. All rights reserved.</p>
   </div>
 </div>
 
@@ -117,12 +117,15 @@
   <div class="ts-player-corner">
     <div class="ts-player">
       <span class="ts-nametag">Huy</span>
+      <!-- js/player.js draws Huy's Minecraft skin on a real player model
+           into a <canvas> here; the flat images below are the fallback
+           if WebGL is unavailable. -->
       <div class="ts-sprite" aria-hidden="true">
         <div class="ts-avatar-body"></div>
         <div class="pf-head"></div>
       </div>
     </div>
-    <a class="ts-linkedin-btn" href="YOUR_LINKEDIN_URL">
+    <a class="ts-linkedin-btn" href="https://www.linkedin.com/in/huy-nguyen-682b87431/" target="_blank" rel="noopener" aria-label="Connect with Huy on LinkedIn">
       <span class="ts-linkedin-icon-box" aria-hidden="true">
         <svg class="ts-linkedin-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/>
@@ -161,10 +164,6 @@
     <button type="button" class="ts-back-btn" data-settings-close>&larr; Back</button>
   </div>
 </div>
-<!-- No bundled music track (no royalty-free file was available to
-     include) -- src is left empty on purpose. Add one and the Music
-     toggle in Settings will play/pause/loop it immediately. -->
-<audio id="bg-music" loop preload="none"></audio>
 
 <!-- Menu windows (About / Experience / Projects). Each is a modal window
      over the dimmed titlescreen: a "[ TITLE ]" header bar with a Close
@@ -179,12 +178,24 @@
     </header>
     <div class="mw-body about-grid">
       <!-- Photo carousel. Add photos as more .about-slide figures
-           (assets/images/about/...), each with a short caption. -->
+           (assets/images/about/...); a <figcaption> is optional. -->
       <div class="about-gallery" data-carousel>
         <div class="about-frame">
-          <figure class="about-slide about-slide-avatar is-active">
-            <img src="assets/images/player-skin/avatar-full.png" alt="Huy's Minecraft character">
-            <figcaption>My Minecraft character.</figcaption>
+          <figure class="about-slide is-active">
+            <img src="assets/images/about/headshot.jpg" alt="Huy Nguyen in a suit, smiling" style="object-position: 50% 30%">
+            <figcaption>Mug Shot</figcaption>
+          </figure>
+          <figure class="about-slide">
+            <img src="assets/images/about/street.jpg" alt="Huy leaning on a lamppost on a city street at night" style="object-position: 50% 45%" loading="lazy">
+            <figcaption>Kinda chilly</figcaption>
+          </figure>
+          <figure class="about-slide">
+            <img src="assets/images/about/hike.jpg" alt="Hiking with friends toward a snowy mountain" style="object-position: 50% 55%" loading="lazy">
+            <figcaption>With the bros</figcaption>
+          </figure>
+          <figure class="about-slide">
+            <img src="assets/images/about/lookout.jpg" alt="Huy smiling at a lookout above a river valley" style="object-position: 50% 60%" loading="lazy">
+            <figcaption>Peep the background</figcaption>
           </figure>
           <button type="button" class="about-nav about-prev" data-carousel-prev aria-label="Previous photo">&lsaquo;</button>
           <button type="button" class="about-nav about-next" data-carousel-next aria-label="Next photo">&rsaquo;</button>
@@ -318,7 +329,8 @@
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
 <script src="js/vendor/three.min.js"></script>
-<script src="js/panorama.js?v=20260925n"></script>
-<script src="js/main.js?v=20260925n"></script>
+<script src="js/panorama.js?v=20260926a"></script>
+<script src="js/player.js?v=20260926a"></script>
+<script src="js/main.js?v=20260926a"></script>
 </body>
 </html>

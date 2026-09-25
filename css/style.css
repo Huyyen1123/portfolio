@@ -26,12 +26,6 @@
   --diamond: #4CD3D3;
   --gold: #E8B84B;
   --offwhite: #E7E4DA;
-  /* Loading-screen-only accents -- red, distinct from --gold which stays
-     the accent color everywhere else on the site (achievements, section
-     titles, nametag border, etc). */
-  --loading-logo-panel: #7A1F1F;
-  --loading-accent: #E74C3C;
-  --loading-panel: #33501f;
 
   --sakura-light: #e78fc0;
   --title-ink: #141414;
@@ -81,16 +75,21 @@ body{
 a{ color: inherit; }
 button{ font: inherit; }
 
-/* ---- Loading screen ---- */
+/* ---- Loading screen: studio-logo startup splash ----
+   Dark screen, a wide red banner with a big white pixel "HUY" (hard drop
+   shadow) over "STUDIOS", and along the bottom the cycling status line,
+   a thin red progress bar and the copyright. Scales with the viewport. */
 .loading-screen{
+  --ls: min(1vw, 1.6vh);
+  --loading-red: #d93a3f;
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: #000000;
+  background: #141414;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-display);
   transition: opacity 500ms var(--ease);
 }
 .loading-screen.fade-out{ opacity: 0; pointer-events: none; }
@@ -99,61 +98,68 @@ button{ font: inherit; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  text-align: center;
-  background: var(--loading-logo-panel);
-  padding: 32px 64px;
+  gap: calc(0.6 * var(--ls));
+  padding: calc(2.6 * var(--ls)) calc(7 * var(--ls)) calc(2.2 * var(--ls));
+  background: var(--loading-red);
+  color: #ffffff;
+  font-weight: 700;
+  animation: loading-logo-in 600ms var(--ease) both;
 }
 .loading-logo-name{
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 5vw, 2.2rem);
-  font-weight: 700;
-  color: #ffffff;
-  letter-spacing: 0.02em;
+  /* Press Start 2P, not MCPixel: MCPixel's bold Y has a flat top and
+     reads as a T at this size. */
+  font-family: 'Press Start 2P', var(--font-display);
+  font-weight: 400;
+  font-size: calc(8.2 * var(--ls));
+  line-height: 1;
+  letter-spacing: 0.12em;
+  margin-right: -0.12em;
+  text-shadow: calc(0.55 * var(--ls)) calc(0.55 * var(--ls)) 0 rgba(0, 0, 0, 0.45);
 }
 .loading-logo-sub{
-  font-family: var(--font-display);
-  font-size: 0.65rem;
-  color: var(--loading-accent);
-  letter-spacing: 0.25em;
+  font-size: calc(2.5 * var(--ls));
+  letter-spacing: 0.4em;
+  margin-right: -0.4em;
+  text-shadow: calc(0.25 * var(--ls)) calc(0.25 * var(--ls)) 0 rgba(0, 0, 0, 0.35);
 }
+@keyframes loading-logo-in{ from{ opacity: 0; } to{ opacity: 1; } }
 
-.loading-bar-wrap{
+.loading-bottom{
   position: absolute;
   left: 50%;
-  bottom: 68px;
+  bottom: calc(5 * var(--ls));
   transform: translateX(-50%);
-  width: min(280px, 70vw);
-  text-align: center;
+  width: min(46vw, 640px);
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(1.4 * var(--ls));
 }
 .loading-label{
-  margin: 0 0 10px;
-  font-size: 0.78rem;
-  color: var(--offwhite);
+  margin: 0;
+  font-size: max(11px, calc(1.2 * var(--ls)));
+  letter-spacing: 0.08em;
+  color: #c9c9c9;
 }
 .loading-bar-track{
   width: 100%;
-  height: 8px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(0, 0, 0, 0.4);
+  height: 4px;
+  background: #3a3a3a;
 }
 .loading-bar-fill{
   height: 100%;
   width: 0%;
-  background: var(--loading-accent);
-  animation: loading-fill 2.1s linear forwards;
+  background: var(--loading-red);
+  animation: loading-fill 2.1s ease-in-out forwards;
 }
 @keyframes loading-fill{ to{ width: 100%; } }
-
-.quiet-footer{
-  position: absolute;
-  bottom: 16px;
-  left: 20px;
-  right: 20px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.62rem;
-  color: rgba(231, 228, 218, 0.5);
+.loading-copyright{
+  margin: 0;
+  font-size: max(9px, calc(0.95 * var(--ls)));
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  color: #6f6f6f;
 }
 
 /* ---- Titlescreen: exactly one viewport, nothing scrolls ---- */
@@ -597,6 +603,10 @@ button{ font: inherit; }
   height: 24.12%;
   background: url('../assets/images/player-skin/avatar-head.png?v=7') center/100% 100% no-repeat;
 }
+/* 3D skin render (js/player.js) replaces the flat fallback images. */
+.ts-sprite-canvas{ position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.ts-sprite-3d .ts-avatar-body,
+.ts-sprite-3d .pf-head{ display: none; }
 
 /* Compact Minecraft button sized to sit just under the player, with the
    player group centred over it. */
@@ -798,20 +808,6 @@ button{ font: inherit; }
 }
 .about-slide.is-active{ display: block; }
 .about-slide > img{ width: 100%; height: 100%; object-fit: cover; }
-/* The character slide: the avatar standing on the site's own panorama. */
-.about-slide-avatar{
-  background: url('../assets/images/background.png') center/cover no-repeat;
-}
-.about-slide-avatar > img{
-  position: absolute;
-  left: 50%;
-  bottom: 13%;
-  width: auto;
-  height: 74%;
-  transform: translateX(-50%);
-  object-fit: contain;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
-}
 .about-slide figcaption{
   position: absolute;
   left: 0;

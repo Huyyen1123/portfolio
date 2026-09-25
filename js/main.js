@@ -73,58 +73,165 @@
     }
   }
 
-  // ---- Sound effects (procedurally generated, no bundled audio files) ----
-  // A shared AudioContext playing short synthesized blips -- an original,
-  // license-free stand-in for real UI sound files. Browsers require a
-  // user gesture before audio can start, so the context is created lazily
-  // on first interaction rather than on load.
-  var audioCtx = null;
+  // ---- Sound (all synthesized with Web Audio -- original, license-free,
+  // no bundled audio files) ----
+  // Effects play when Settings > Sound FX is on; the music is a generated
+  // ambient piano loop that plays when Settings > Music is on. Browsers
+  // only allow audio after a user gesture, so the context starts lazily.
+  var audioCtx = null, sfxBus = null, musicBus = null;
   function getAudioCtx() {
     if (!audioCtx) {
       var Ctx = window.AudioContext || window.webkitAudioContext;
-      if (Ctx) audioCtx = new Ctx();
+      if (!Ctx) return null;
+      audioCtx = new Ctx();
+      sfxBus = audioCtx.createGain();
+      sfxBus.gain.value = 0.5;
+      sfxBus.connect(audioCtx.destination);
+      // Music runs through a soft feedback echo for a roomy, calm tail.
+      musicBus = audioCtx.createGain();
+      musicBus.gain.value = 0;
+      var echo = audioCtx.createDelay();
+      echo.delayTime.value = 0.42;
+      var feedback = audioCtx.createGain();
+      feedback.gain.value = 0.35;
+      var tone = audioCtx.createBiquadFilter();
+      tone.type = 'lowpass';
+      tone.frequency.value = 2200;
+      musicBus.connect(tone);
+      tone.connect(audioCtx.destination);
+      tone.connect(echo);
+      echo.connect(feedback);
+      feedback.connect(echo);
+      echo.connect(audioCtx.destination);
     }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     return audioCtx;
   }
-  function blip(freq, durationMs, type) {
-    if (!settings.sfx) return;
-    var ctx = getAudioCtx();
-    if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
-    var osc = ctx.createOscillator();
-    var gain = ctx.createGain();
-    osc.type = type || 'square';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.06, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + durationMs / 1000);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + durationMs / 1000);
-  }
-  function hoverSound() { blip(660, 0.06, 'square'); }
-  function clickSound() { blip(420, 0.09, 'square'); }
 
-  var soundTriggers = document.querySelectorAll(
-    '.ts-menu-btn, .ts-icon-btn, .ts-linkedin-btn, .ts-back-btn, .settings-toggle'
-  );
-  soundTriggers.forEach(function (el) {
-    el.addEventListener('mouseenter', hoverSound);
-    el.addEventListener('click', clickSound);
+  // One enveloped oscillator note. start/len in seconds.
+  function tone(dest, freq, start, len, type, vol, glideTo) {
+    var ctx = audioCtx;
+    var osc = ctx.createOscillator(), gain = ctx.createGain();
+    var t = ctx.currentTime + start;
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    if (glideTo) osc.frequency.exponentialRampToValueAtTime(glideTo, t + len);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(vol, t + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    osc.connect(gain);
+    gain.connect(dest);
+    osc.start(t);
+    osc.stop(t + len + 0.02);
+  }
+  // A short burst of filtered noise (clicks, whooshes).
+  function noise(start, len, freq, q, vol, sweepTo) {
+    var ctx = audioCtx;
+    var buf = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * len), ctx.sampleRate);
+    var data = buf.getChannelData(0);
+    for (var i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    var src = ctx.createBufferSource(), filt = ctx.createBiquadFilter(), gain = ctx.createGain();
+    var t = ctx.currentTime + start;
+    src.buffer = buf;
+    filt.type = 'bandpass';
+    filt.Q.value = q;
+    filt.frequency.setValueAtTime(freq, t);
+    if (sweepTo) filt.frequency.exponentialRampToValueAtTime(sweepTo, t + len);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    src.connect(filt);
+    filt.connect(gain);
+    gain.connect(sfxBus);
+    src.start(t);
+  }
+
+  var SFX = {
+    // Chunky "tock", like pressing a stone button.
+    click: function () {
+      tone(sfxBus, 190, 0, 0.09, 'triangle', 0.5, 95);
+      noise(0, 0.05, 1800, 1.2, 0.35);
+    },
+    // Barely-there tick so hovering the menu feels alive.
+    hover: function () { tone(sfxBus, 1250, 0, 0.035, 'sine', 0.06); },
+    open: function () {
+      tone(sfxBus, 523.25, 0.05, 0.14, 'triangle', 0.18);
+      tone(sfxBus, 783.99, 0.12, 0.2, 'triangle', 0.18);
+    },
+    close: function () {
+      tone(sfxBus, 783.99, 0, 0.12, 'triangle', 0.15);
+      tone(sfxBus, 523.25, 0.07, 0.18, 'triangle', 0.15);
+    },
+    flip: function () { noise(0, 0.22, 500, 0.8, 0.22, 2600); },
+    // Bright little fanfare for "Achievement Get!".
+    achievement: function () {
+      [1046.5, 1318.5, 1568, 2093].forEach(function (f, i) {
+        tone(sfxBus, f, i * 0.07, 0.35, 'square', 0.05);
+        tone(sfxBus, f, i * 0.07, 0.5, 'sine', 0.12);
+      });
+    }
+  };
+  function playSfx(name) {
+    if (!settings.sfx || !getAudioCtx()) return;
+    SFX[name]();
+  }
+
+  document.querySelectorAll(
+    '.ts-menu-btn, .ts-icon-btn, .ts-linkedin-btn, .ts-back-btn, .settings-toggle, .about-nav, .mw-wide-btn'
+  ).forEach(function (el) {
+    el.addEventListener('mouseenter', function () { if (audioCtx) playSfx('hover'); });
+    el.addEventListener('click', function () { playSfx('click'); });
   });
 
-  // Ambient music: wired up and toggle-able, but no track is bundled (no
-  // royalty-free audio file was available to include) -- flip Music on
-  // in Settings and it's ready to play the moment a real src is added.
-  var bgMusic = document.getElementById('bg-music');
-  function applyMusicState() {
-    if (!bgMusic) return;
-    if (settings.music && bgMusic.currentSrc) {
-      bgMusic.play().catch(function () { /* autoplay may still be blocked */ });
-    } else {
-      bgMusic.pause();
-    }
+  // ---- Music: a calm generated piano loop in a C418-ish mood. Picks slow
+  // notes from a pentatonic scale over a four-chord cycle. ----
+  var CHORDS = [
+    [130.81, 196.0, 261.63],   // C
+    [110.0, 164.81, 220.0],    // Am
+    [87.31, 130.81, 174.61],   // F
+    [98.0, 146.83, 196.0]      // G
+  ];
+  var MELODY = [392.0, 440.0, 523.25, 587.33, 659.25, 783.99, 880.0];
+  var musicTimer = null, musicStep = 0;
+  function piano(freq, start, vol) {
+    tone(musicBus, freq, start, 3.2, 'sine', vol);
+    tone(musicBus, freq * 2, start, 1.4, 'triangle', vol * 0.18);
   }
+  function musicBar() {
+    var chord = CHORDS[Math.floor(musicStep / 2) % CHORDS.length];
+    if (musicStep % 2 === 0) chord.forEach(function (f, i) { piano(f, i * 0.12, 0.09); });
+    var notes = 1 + Math.floor(Math.random() * 3);
+    for (var n = 0; n < notes; n++) {
+      if (Math.random() < 0.8) {
+        piano(MELODY[Math.floor(Math.random() * MELODY.length)], 0.4 + n * (0.9 + Math.random() * 0.6), 0.06);
+      }
+    }
+    musicStep++;
+  }
+  function startMusic() {
+    if (musicTimer || !getAudioCtx()) return;
+    musicBus.gain.cancelScheduledValues(audioCtx.currentTime);
+    musicBus.gain.setTargetAtTime(0.9, audioCtx.currentTime, 0.8);
+    musicBar();
+    musicTimer = setInterval(musicBar, 3200);
+  }
+  function stopMusic() {
+    if (!musicTimer) return;
+    clearInterval(musicTimer);
+    musicTimer = null;
+    musicBus.gain.setTargetAtTime(0, audioCtx.currentTime, 0.4);
+  }
+  function applyMusicState() {
+    if (settings.music) startMusic(); else stopMusic();
+  }
+  // If Music was left on last visit, start it on the first click/key
+  // (browsers block audio before any user gesture).
+  function firstGesture() {
+    document.removeEventListener('pointerdown', firstGesture);
+    document.removeEventListener('keydown', firstGesture);
+    if (settings.music) startMusic();
+  }
+  document.addEventListener('pointerdown', firstGesture);
+  document.addEventListener('keydown', firstGesture);
 
   // ---- Settings panel ----
   var settingsBtn = document.getElementById('settings-btn');
@@ -207,6 +314,7 @@
     var panel = panels[name];
     if (!panel) return;
     lastTrigger = trigger || null;
+    playSfx('open');
     panel.hidden = false;
     void panel.offsetWidth;
     panel.classList.add('panel-visible');
@@ -219,6 +327,7 @@
 
   function closePanel(panel) {
     panel.classList.remove('panel-visible');
+    playSfx('close');
     setTimeout(function () { panel.hidden = true; }, 250);
     if (lastTrigger) {
       lastTrigger.focus();
@@ -273,7 +382,8 @@
 
   // ---- Experience cards: hover/focus shows details; tap toggles on touch ----
   document.querySelectorAll('.exp-card').forEach(function (card) {
-    card.addEventListener('click', function () { card.classList.toggle('is-open'); });
+    card.addEventListener('mouseenter', function () { if (audioCtx) playSfx('flip'); });
+    card.addEventListener('click', function () { playSfx('flip'); card.classList.toggle('is-open'); });
     card.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.classList.toggle('is-open'); }
     });
@@ -302,6 +412,7 @@
       toastContainer.appendChild(toast);
       void toast.offsetWidth;
       toast.classList.add('show');
+      playSfx('achievement');
 
       setTimeout(function () {
         toast.classList.remove('show');
