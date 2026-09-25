@@ -6,7 +6,7 @@
 <title>Huy Nguyen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=20260925n">
 </head>
 <body>
 
@@ -102,7 +102,7 @@
            actual artwork. object-fit:contain preserves its aspect
            ratio at any width -- never stretched. -->
       <img class="ts-title-logo" src="assets/images/huy-nguyen-logo.png" alt="Huy Nguyen">
-      <p class="ts-splash">Software Engineer!</p>
+      <p class="ts-splash">Software Engineer!!</p>
     </div>
 
     <nav class="ts-menu" aria-label="Main navigation">
@@ -196,15 +196,14 @@
       <div class="about-info">
         <h3 class="mw-kicker">// Player Info</h3>
         <p class="about-name">Huy Nguyen</p>
-        <p class="mw-text">I'm a Computer Science and Math student at the University of Houston with a love for fashion. Outside of school, you'll probably find me running, lifting, or hiking.</p>
-        <p class="mw-muted about-contact">Reach me at <a class="bio-link" href="mailto:huyhnguyen2311@gmail.com">huyhnguyen2311@gmail.com</a></p>
+        <p class="mw-text">UH Computer Science and Math student who deploys websites for student clubs. Outside of school, I love mountains and fashion.</p>
 
         <h3 class="mw-kicker">// Education</h3>
         <p class="mw-strong">University of Houston</p>
         <p class="mw-muted">B.S. Computer Science &mdash; Expected May 2028</p>
 
         <h3 class="mw-kicker">// Interests</h3>
-        <p class="mw-text">Swimming, travel, and doom scrolling.</p>
+        <p class="mw-text">Running, swimming, lifting and I'd hike 10 hours up a mountain just to watch IG reels.</p>
 
         <h3 class="mw-kicker">// Skill Inventory</h3>
         <ul class="skill-chips">
@@ -213,10 +212,7 @@
           <li>Git</li><li>GitHub</li>
         </ul>
 
-        <!-- Not linked yet: no resume is in the site. To connect it, add the
-             PDF (e.g. assets/resume.pdf) and change this span to
-             <a class="mw-wide-btn" href="assets/resume.pdf" target="_blank" rel="noopener">. -->
-        <span class="mw-wide-btn is-disabled" aria-disabled="true" title="Resume coming soon">[&darr;] View Resume</span>
+        <a class="mw-wide-btn" href="assets/Huy_Nguyen_Resume.pdf" target="_blank" rel="noopener">[&darr;] View Resume</a>
       </div>
     </div>
   </div>
@@ -232,29 +228,37 @@
     <div class="mw-body">
       <p class="mw-hint">Hover over a card to see what I did there.</p>
       <div class="exp-grid">
-        <!-- Each card flips to its details on hover, keyboard focus, or tap. -->
+        <!-- Each card flips over (3D) to its details on hover, keyboard focus, or tap. -->
         <article class="exp-card" tabindex="0" style="--accent:#e8b84b">
-          <div class="exp-front">
-            <h3 class="exp-org">Multiple Student Clubs</h3>
-            <p class="exp-role">Web Developer</p>
-            <p class="exp-dates">2024 &ndash; 2025</p>
-            <p class="exp-place">Lone Star College &middot; Houston, TX</p>
-            <p class="exp-more">[ hover to see more ]</p>
-          </div>
-          <div class="exp-back">
-            <p>Built and self-hosted Flask/Django sites for campus clubs (up to 50 members) &mdash; sign-up databases, an event calendar, and registration forms, kept live and updated all year.</p>
+          <div class="exp-inner">
+            <div class="exp-face exp-front">
+              <h3 class="exp-org">Multiple Student Clubs</h3>
+              <p class="exp-role">Web Developer</p>
+              <p class="exp-dates">2024 &ndash; 2025</p>
+              <p class="exp-place">Lone Star College &middot; Houston, TX</p>
+              <p class="exp-more">[ hover to see more ]</p>
+            </div>
+            <div class="exp-face exp-back">
+              <h4 class="exp-back-title">Web Developer</h4>
+              <p>Built and self-hosted Flask/Django sites for campus clubs (up to 50 members) &mdash; sign-up databases, an event calendar, and registration forms, kept live and updated all year.</p>
+              <ul class="exp-tags"><li>Python</li><li>Flask</li><li>Django</li><li>SQLite</li></ul>
+            </div>
           </div>
         </article>
         <article class="exp-card" tabindex="0" style="--accent:#4cd3d3">
-          <div class="exp-front">
-            <h3 class="exp-org">Lone Star College</h3>
-            <p class="exp-role">Math Tutor</p>
-            <p class="exp-dates">2024 &ndash; 2025</p>
-            <p class="exp-place">Houston, TX</p>
-            <p class="exp-more">[ hover to see more ]</p>
-          </div>
-          <div class="exp-back">
-            <p>Tutor students weekly in Calculus, Discrete Math, and intro-level courses, working through homework and exam prep.</p>
+          <div class="exp-inner">
+            <div class="exp-face exp-front">
+              <h3 class="exp-org">Lone Star College</h3>
+              <p class="exp-role">Math Tutor</p>
+              <p class="exp-dates">2024 &ndash; 2025</p>
+              <p class="exp-place">Houston, TX</p>
+              <p class="exp-more">[ hover to see more ]</p>
+            </div>
+            <div class="exp-face exp-back">
+              <h4 class="exp-back-title">Math Tutor</h4>
+              <p>Tutor students weekly in Calculus, Discrete Math, Linear Algebra, Statistics, and intro-level courses, working through homework and exam prep.</p>
+              <ul class="exp-tags"><li>Calculus</li><li>Discrete Math</li><li>Linear Algebra</li><li>Statistics</li></ul>
+            </div>
           </div>
         </article>
       </div>
@@ -270,32 +274,42 @@
       <button type="button" class="mw-close" data-back><span aria-hidden="true">&times;</span> Close</button>
     </header>
     <div class="mw-body proj-list">
-      <article class="proj-card" style="--accent:#5b8c3a">
-        <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#127828;</span>MacroFind</h3>
-        <ul class="proj-tags"><li>Python</li><li>Flask</li><li>SQLite</li><li>REST APIs</li></ul>
+      <article class="proj-card" style="--accent:#6cc24a">
+        <div class="proj-head">
+          <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#127828;</span>MacroFind</h3>
+          <!-- <span class="proj-date">Mon. YYYY &ndash; Mon. YYYY</span> -->
+        </div>
+        <ul class="proj-tags"><li>Python</li><li>Flask</li><li>SQLite</li><li>REST APIs</li><li>OpenStreetMap</li></ul>
         <ul class="proj-points">
-          <li>Finds fast food menu items that fit your macros.</li>
-          <li>Pulls real nearby chains via geolocation, with real nutrition data and custom macro filters.</li>
+          <li>Flask web app that finds fast food menu items fitting your macros, using real menu items and nutrition data for each dish.</li>
+          <li>Finds real nearby chain locations from a typed address or your current location with OpenStreetMap's Nominatim and Overpass APIs &mdash; no API key needed.</li>
+          <li>Filters by High Protein, Low Carb, Under 500 Cal, Vegan, Vegetarian, and Low Sodium, combinable with free-text search.</li>
+          <li>Built-in macro calculator (Mifflin-St Jeor BMR &rarr; TDEE &rarr; protein/fat/carb split) whose results feed straight into search as a filter.</li>
+          <li>Scores every item 0&ndash;100 with a tunable health heuristic weighing calories, sugar, sodium, and saturated fat against protein density.</li>
         </ul>
-        <a class="proj-link" href="https://github.com/Huyyen1123/macrofind" target="_blank" rel="noopener">View repo &rarr;</a>
+      </article>
+      <article class="proj-card" style="--accent:#e8b84b">
+        <div class="proj-head">
+          <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#9999;&#65039;</span>Chalk &amp; Slate</h3>
+          <!-- <span class="proj-date">Mon. YYYY &ndash; Mon. YYYY</span> -->
+        </div>
+        <ul class="proj-tags"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>SVG</li><li>Flask</li></ul>
+        <ul class="proj-points">
+          <li>Two-player tic-tac-toe on a hand-drawn chalkboard, with every X, O, and winning line animated as a chalk stroke in SVG.</li>
+          <li>Running scoreboard for X, O, and draws that persists between visits with localStorage.</li>
+          <li>Also built a Flask version where the board, turns, and score live server-side in the session &mdash; it plays with no client-side JavaScript at all.</li>
+        </ul>
       </article>
       <article class="proj-card" style="--accent:#4cd3d3">
-        <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#129518;</span>Grade Calculator</h3>
+        <div class="proj-head">
+          <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#129518;</span>Grade Calculator</h3>
+          <!-- <span class="proj-date">Mon. YYYY &ndash; Mon. YYYY</span> -->
+        </div>
         <ul class="proj-tags"><li>C++</li></ul>
         <ul class="proj-points">
           <li>Computes weighted grades across homework, tests, and finals.</li>
           <li>Input validation so it doesn't break, split cleanly across multiple .cpp/.h files.</li>
         </ul>
-        <!-- Replace [[PLACEHOLDER: repo link]] with the repo URL. -->
-        <a class="proj-link" href="[[PLACEHOLDER: repo link]]">View repo &rarr;</a>
-      </article>
-      <article class="proj-card" style="--accent:#e8b84b">
-        <h3 class="proj-title"><span class="proj-icon" aria-hidden="true">&#9999;&#65039;</span>Chalk &amp; Slate</h3>
-        <ul class="proj-tags"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
-        <ul class="proj-points">
-          <li>A hand-chalked tic-tac-toe board with a running scoreboard, drawn in slate and gold.</li>
-        </ul>
-        <a class="proj-link" href="https://claude.ai/code/artifact/1d275d39-6da8-4818-892b-410502d84ecb" target="_blank" rel="noopener">Play it &rarr;</a>
       </article>
     </div>
   </div>
@@ -304,7 +318,7 @@
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
 <script src="js/vendor/three.min.js"></script>
-<script src="js/panorama.js"></script>
-<script src="js/main.js"></script>
+<script src="js/panorama.js?v=20260925n"></script>
+<script src="js/main.js?v=20260925n"></script>
 </body>
 </html>

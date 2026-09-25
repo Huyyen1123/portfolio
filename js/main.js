@@ -27,6 +27,21 @@
   }
   applyMotionState();
 
+  // ---- Splash text: steps through SPLASHES in order, one per page
+  // load (1 -> 2 -> 3 -> 4 -> 1...), remembered in localStorage. ----
+  var SPLASHES = ['Software Engineer!!', 'IRONMAN!!', 'Vietnamese!!', '2005!!'];
+  var splashEl = document.querySelector('.ts-splash');
+  if (splashEl) {
+    var splashIndex = 0;
+    try {
+      var last = parseInt(localStorage.getItem('portfolio-splash-index'), 10);
+      if (!isNaN(last)) splashIndex = (last + 1) % SPLASHES.length;
+      localStorage.setItem('portfolio-splash-index', String(splashIndex));
+    } catch (e) { /* storage blocked: always show the first line */ }
+    splashEl.textContent = SPLASHES[splashIndex];
+    splashEl.style.setProperty('--splash-len', SPLASHES[splashIndex].length);
+  }
+
   // ---- Loading screen -> titlescreen handoff ----
   var loadingScreen = document.getElementById('loading-screen');
   var titlescreen = document.getElementById('titlescreen');
@@ -199,7 +214,7 @@
     if (body) body.scrollTop = 0;
     var heading = panel.querySelector('.section-title');
     if (heading) heading.focus();
-    if (name === 'about') fireAchievementsOnce();
+    fireAchievementsOnce(name);
   }
 
   function closePanel(panel) {
@@ -264,10 +279,15 @@
     });
   });
 
-  // ---- Achievement toasts: fire once, the first time the About panel opens ----
+  // ---- Achievement toasts: each window unlocks its own set once, the
+  // first time it opens (stacked in the top-right corner). ----
   var toastContainer = document.getElementById('toast-container');
-  var ACHIEVEMENTS = ['Marathoner', 'Half Ironman Finisher'];
-  var achievementsFired = false;
+  var ACHIEVEMENTS = {
+    about: ['Discover About Me', 'Marathoner', 'Ironman 70.3'],
+    experience: ['Discover Experience'],
+    projects: ['Discover Projects']
+  };
+  var achievementsFired = {};
 
   function showToast(title, delay) {
     setTimeout(function () {
@@ -290,11 +310,11 @@
     }, delay);
   }
 
-  function fireAchievementsOnce() {
-    if (achievementsFired || !toastContainer) return;
-    achievementsFired = true;
-    showToast(ACHIEVEMENTS[0], 0);
-    showToast(ACHIEVEMENTS[1], 550);
+  function fireAchievementsOnce(name) {
+    var list = ACHIEVEMENTS[name];
+    if (!list || achievementsFired[name] || !toastContainer) return;
+    achievementsFired[name] = true;
+    list.forEach(function (title, i) { showToast(title, 250 + i * 550); });
   }
 
 })();

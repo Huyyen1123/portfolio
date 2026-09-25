@@ -405,22 +405,24 @@ button{ font: inherit; }
   object-fit: contain;
 }
 
-/* Anchored at a point just past the logo's bottom-right letters and
-   rotated around that same point, so it reads as attached to the logo
-   the way Minecraft's splash text does. Everything is a fraction of
-   --logo-w so it tracks the logo at every size. z-index keeps it above
-   the in-flow logo <img> where their boxes overlap. */
+/* Placed like Minecraft's splash: centred on the logo's right-hand
+   edge, low on the letters, tilted ~22deg, bouncing around its centre.
+   Size follows Minecraft's own rule -- scale = 1 / (6 x characters + 32)
+   -- so long lines render smaller and short ones bigger, and every line
+   (see SPLASHES in js/main.js, which sets --splash-len) takes up about
+   the same spot on the logo's corner. z-index keeps it above the logo. */
 .ts-splash{
+  --splash-len: 19;
   position: absolute;
   z-index: 3;
   margin: 0;
-  bottom: calc(var(--logo-w) * 0.135);
-  right: calc(var(--logo-w) * -0.05);
+  left: calc(var(--logo-w) * 0.9);
+  top: calc(var(--logo-w) * 0.2);
   white-space: nowrap;
-  text-align: right;
+  text-align: center;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: calc(var(--logo-w) * 0.022);
+  font-size: calc(var(--logo-w) * 3.35 / (6 * var(--splash-len) + 32));
   /* Real Minecraft splash-text color (#FFFF55) and bounce, pulled
      straight from the reference site's compiled CSS (.splash-text,
      @keyframes splashBounce) rather than approximated: 0.5s
@@ -428,13 +430,13 @@ button{ font: inherit; }
      with the matching dark-yellow (not black) shadow. */
   color: #ffff55;
   text-shadow: 2px 2px 0 #3f3f00;
-  transform: rotate(-15deg);
-  transform-origin: bottom right;
+  transform: translate(-50%, -50%) rotate(-22deg);
+  transform-origin: center;
   animation: splashBounce 0.5s ease-in-out infinite alternate;
 }
 @keyframes splashBounce{
-  0%{ transform: rotate(-15deg) scale(1); }
-  100%{ transform: rotate(-15deg) scale(1.12); }
+  0%{ transform: translate(-50%, -50%) rotate(-22deg) scale(1); }
+  100%{ transform: translate(-50%, -50%) rotate(-22deg) scale(1.12); }
 }
 
 /* ~54% of the logo's width, per the mockup -- clearly narrower than
@@ -769,15 +771,6 @@ button{ font: inherit; }
   background: linear-gradient(180deg, #7e8fc4 0%, #6e7fb4 50%, #5f70a4 100%);
 }
 .mw-wide-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
-/* Placeholder state (no link yet): same button face, dimmed, no hover. */
-.mw-wide-btn.is-disabled,
-.mw-wide-btn.is-disabled:hover{
-  cursor: not-allowed;
-  opacity: 0.55;
-  color: var(--offwhite);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
-  background: linear-gradient(180deg, #949494 0%, #848484 50%, #767676 100%);
-}
 
 .bio-link{ color: var(--diamond); text-decoration: none; }
 .bio-link:hover{ text-decoration: underline; }
@@ -870,7 +863,12 @@ button{ font: inherit; }
 #panel-about .skill-chips li{ padding: 4px 9px; font-size: 0.7rem; border-width: 2px; }
 #panel-about .mw-wide-btn{ margin-top: 24px; padding: 11px 14px; font-size: 0.9rem; }
 #panel-about .about-grid{ gap: clamp(24px, 3.4vw, 48px); }
-#panel-about .about-frame{ aspect-ratio: 4 / 5; }
+/* Picture column stretches to the info column's full height at every
+   zoom level, so the photo always lines up top and bottom with the text
+   (dots sit under it). */
+#panel-about .about-grid{ align-items: stretch; }
+#panel-about .about-gallery{ display: flex; flex-direction: column; }
+#panel-about .about-frame{ flex: 1; aspect-ratio: auto; min-height: 320px; }
 .about-contact{ margin-top: 10px; }
 .skill-chips{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
 .skill-chips li{
@@ -882,16 +880,38 @@ button{ font: inherit; }
   box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35);
 }
 
-/* ---- Experience: flip-on-hover cards with a coloured left edge ---- */
+/* ---- Experience: 3D flip cards with a coloured left edge ----
+   Front: company, role, dates, place. Hover / keyboard focus / tap turns
+   the card over (rotateY) to the details on the back. */
 .exp-grid{
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(16px, 2vw, 28px);
 }
 .exp-card{
+  perspective: 1400px;
+  cursor: pointer;
+}
+.exp-card:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
+/* Both faces sit in the same grid cell, so the card is always as tall
+   as its longer side -- the back's description never spills out, however
+   narrow the window gets. */
+.exp-inner{
   position: relative;
+  display: grid;
   min-height: clamp(220px, 32vh, 320px);
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 600ms cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.exp-card:hover .exp-inner,
+.exp-card:focus-visible .exp-inner,
+.exp-card.is-open .exp-inner{ transform: rotateY(180deg); }
+.exp-face{
+  grid-area: 1 / 1;
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px 28px;
@@ -899,42 +919,82 @@ button{ font: inherit; }
   background: #1c1c1e;
   border: 2px solid #3a3a3c;
   border-left: 6px solid var(--accent);
-  cursor: pointer;
-  transition: background 150ms var(--ease);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
-.exp-card:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
+/* The back reads as the card turned over: the accent edge sits on the
+   right, like the reference. */
+.exp-back{
+  transform: rotateY(180deg);
+  background: #1c1c1e;
+  align-items: flex-start;
+  text-align: left;
+  border-left: 2px solid #3a3a3c;
+  border-right: 6px solid var(--accent);
+}
 .exp-org{ margin: 0 0 14px; font-size: clamp(1.1rem, 2vw, 1.55rem); font-weight: 700; }
 .exp-role{ margin: 0 0 14px; font-size: clamp(0.85rem, 1.3vw, 1.05rem); font-weight: 700; color: var(--accent); }
 .exp-dates{ margin: 0 0 10px; font-size: 0.9rem; color: #bdbdbd; }
 .exp-place{ margin: 0 0 16px; font-size: 0.8rem; color: #8a8a8a; }
 .exp-more{ margin: 0; font-size: 0.7rem; color: #6f6f6f; }
-.exp-back{ display: none; }
-.exp-back p{ margin: 0; font-size: 0.95rem; line-height: 1.7; text-align: left; }
-.exp-card:hover, .exp-card:focus-visible, .exp-card.is-open{ background: #222226; }
-.exp-card:hover .exp-front, .exp-card:focus-visible .exp-front, .exp-card.is-open .exp-front{ display: none; }
-.exp-card:hover .exp-back, .exp-card:focus-visible .exp-back, .exp-card.is-open .exp-back{ display: block; }
+.exp-back-title{
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.exp-back p{ margin: 0; font-size: 0.9rem; font-weight: 700; line-height: 1.65; color: #ffffff; }
+.exp-tags{ list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.exp-tags li{
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #2b2b2d;
+  border: 2px solid #585858;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+}
+/* Reduce Motion: still turns over, just without the spin. */
+html.motion-off .exp-inner{ transition: none; }
 
 /* ---- Projects: stacked cards with a thick coloured left edge ---- */
 .proj-list{ display: flex; flex-direction: column; gap: clamp(18px, 2.6vh, 30px); }
 .proj-card{
-  padding: clamp(20px, 3vh, 34px) clamp(20px, 3vw, 40px);
+  padding: clamp(18px, 2.8vh, 30px) clamp(20px, 2.6vw, 36px);
   background: #1a1a1c;
   border: 2px solid #3a3a3c;
-  border-left: 8px solid var(--accent);
+  border-left: 6px solid var(--accent);
+}
+/* Title on the left, dates (when given) on the right. */
+.proj-head{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 14px;
 }
 .proj-title{
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin: 0 0 16px;
-  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  gap: 12px;
+  margin: 0;
+  font-size: clamp(1rem, 1.7vw, 1.3rem);
   font-weight: 700;
 }
-.proj-icon{ font-size: 1.1em; }
-.proj-tags{ list-style: none; margin: 0 0 18px; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.proj-date{
+  flex-shrink: 0;
+  padding-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #9a9a9a;
+  white-space: nowrap;
+}
+.proj-icon{ font-size: 1em; }
+.proj-tags{ list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .proj-tags li{
-  padding: 4px 10px;
-  font-size: 0.78rem;
+  padding: 3px 9px;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--accent);
   border: 2px solid var(--accent);
@@ -944,8 +1004,10 @@ button{ font: inherit; }
   position: relative;
   padding-left: 22px;
   margin-bottom: 10px;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  font-weight: 700;
   line-height: 1.7;
+  color: #f0f0f0;
 }
 .proj-points li::before{
   content: "\25B8";
@@ -953,9 +1015,6 @@ button{ font: inherit; }
   left: 0;
   color: var(--accent);
 }
-.proj-link{ font-size: 0.85rem; font-weight: 700; color: var(--accent); text-decoration: none; }
-.proj-link:hover{ text-decoration: underline; }
-.proj-link:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
 
 /* Back button -- used by the Settings panel. */
 .ts-back-btn{
@@ -989,22 +1048,24 @@ button{ font: inherit; }
   z-index: 90;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 10px;
   pointer-events: none;
 }
 .achievement-toast{
-  background: linear-gradient(180deg, #2a2a30, #1a1a1f);
-  border: 2px solid var(--gold);
-  padding: 10px 16px 10px 12px;
+  background: #1a1a1c;
+  border: 3px solid #5a5a5a;
+  box-shadow: inset 0 0 0 2px #0e0e0f, 0 6px 18px rgba(0, 0, 0, 0.5);
+  padding: 10px 18px 10px 12px;
+  font-family: var(--font-display);
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 220px;
-  max-width: 280px;
-  transform: translateX(120%);
+  width: 310px;
+  max-width: calc(100vw - 32px);
+  transform: translateX(calc(100% + 24px));
   opacity: 0;
   transition: transform 400ms var(--ease), opacity 400ms var(--ease);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
 .achievement-toast.show{ transform: translateX(0); opacity: 1; }
 .achievement-icon{
@@ -1025,13 +1086,14 @@ button{ font: inherit; }
   font-size: 1rem;
 }
 .achievement-text{ display: flex; flex-direction: column; gap: 2px; }
-.achievement-label{ font-size: 0.6rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; }
-.achievement-title{ font-size: 0.85rem; color: var(--offwhite); font-weight: 700; }
+.achievement-label{ font-size: 0.68rem; font-weight: 700; color: #ffd84a; }
+.achievement-title{ font-size: 0.85rem; color: #ffffff; font-weight: 700; }
 
 /* ---- Small screens ---- */
 @media (max-width: 640px){
   .about-grid, .exp-grid{ grid-template-columns: minmax(0, 1fr); }
   .about-gallery{ max-width: 320px; margin: 0 auto; width: 100%; }
+  #panel-about .about-frame{ flex: none; aspect-ratio: 4 / 5; min-height: 0; }
   .loading-logo{ padding: 24px 32px; }
   /* .ts-menu / .ts-title-logo / .ts-title-block no longer need an
      override here -- --logo-w and the menu's own clamp()s already
