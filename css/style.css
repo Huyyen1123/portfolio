@@ -769,6 +769,15 @@ button{ font: inherit; }
   background: linear-gradient(180deg, #7e8fc4 0%, #6e7fb4 50%, #5f70a4 100%);
 }
 .mw-wide-btn:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 3px; }
+/* Placeholder state (no link yet): same button face, dimmed, no hover. */
+.mw-wide-btn.is-disabled,
+.mw-wide-btn.is-disabled:hover{
+  cursor: not-allowed;
+  opacity: 0.55;
+  color: var(--offwhite);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  background: linear-gradient(180deg, #949494 0%, #848484 50%, #767676 100%);
+}
 
 .bio-link{ color: var(--diamond); text-decoration: none; }
 .bio-link:hover{ text-decoration: underline; }
@@ -849,6 +858,19 @@ button{ font: inherit; }
 .is-single .about-nav, .is-single .about-count{ display: none; }
 
 .about-name{ margin: 0 0 12px; font-size: clamp(1.3rem, 2.2vw, 1.75rem); font-weight: 700; }
+/* Compact About window: smaller type and tighter rhythm so the whole
+   panel fits a 1440x900 screen without scrolling. */
+#panel-about .mw-kicker{ font-size: 0.78rem; margin-bottom: 8px; }
+#panel-about .mw-kicker:not(:first-child){ margin-top: 20px; }
+#panel-about .about-name{ margin-bottom: 8px; font-size: clamp(1.15rem, 1.8vw, 1.45rem); }
+#panel-about .mw-text{ font-size: 0.85rem; line-height: 1.6; }
+#panel-about .mw-strong{ font-size: 0.9rem; }
+#panel-about .mw-muted{ font-size: 0.78rem; line-height: 1.6; }
+#panel-about .skill-chips{ gap: 7px; }
+#panel-about .skill-chips li{ padding: 4px 9px; font-size: 0.7rem; border-width: 2px; }
+#panel-about .mw-wide-btn{ margin-top: 24px; padding: 11px 14px; font-size: 0.9rem; }
+#panel-about .about-grid{ gap: clamp(24px, 3.4vw, 48px); }
+#panel-about .about-frame{ aspect-ratio: 4 / 5; }
 .about-contact{ margin-top: 10px; }
 .skill-chips{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
 .skill-chips li{
