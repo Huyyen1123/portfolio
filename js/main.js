@@ -42,6 +42,20 @@
     splashEl.style.setProperty('--splash-len', SPLASHES[splashIndex].length);
   }
 
+  // ---- Nametag above the player: steps through NAMETAGS in order, one
+  // per page load, like the splash text above. ----
+  var NAMETAGS = ['Yoo', 'Hii', 'Wassup'];
+  var nametagEl = document.querySelector('.ts-nametag');
+  if (nametagEl) {
+    var nametagIndex = 0;
+    try {
+      var lastTag = parseInt(localStorage.getItem('portfolio-nametag-index'), 10);
+      if (!isNaN(lastTag)) nametagIndex = (lastTag + 1) % NAMETAGS.length;
+      localStorage.setItem('portfolio-nametag-index', String(nametagIndex));
+    } catch (e) { /* storage blocked: always show the first one */ }
+    nametagEl.textContent = NAMETAGS[nametagIndex];
+  }
+
   // ---- Loading screen -> titlescreen handoff ----
   var loadingScreen = document.getElementById('loading-screen');
   var titlescreen = document.getElementById('titlescreen');
