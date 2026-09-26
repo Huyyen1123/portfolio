@@ -44,7 +44,7 @@
 
   // ---- Nametag above the player: steps through NAMETAGS in order, one
   // per page load, like the splash text above. ----
-  var NAMETAGS = ['Yoo', 'Hii', 'Wassup'];
+  var NAMETAGS = ['Wassup', 'Yo!', 'Hi'];
   var nametagEl = document.querySelector('.ts-nametag');
   if (nametagEl) {
     var nametagIndex = 0;
@@ -416,7 +416,7 @@
   // first time it opens (stacked in the top-right corner). ----
   var toastContainer = document.getElementById('toast-container');
   var ACHIEVEMENTS = {
-    about: ['Discover About Me', 'Marathon', 'IronMan'],
+    about: ['Discover About Me', 'Marathon', 'IRONMAN'],
     experience: ['Discover Experience'],
     projects: ['Discover Projects']
   };
