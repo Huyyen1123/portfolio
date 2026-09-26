@@ -402,7 +402,7 @@
   // first time it opens (stacked in the top-right corner). ----
   var toastContainer = document.getElementById('toast-container');
   var ACHIEVEMENTS = {
-    about: ['Discover About Me', 'Marathoner', 'Ironman 70.3'],
+    about: ['Discover About Me', 'Marathon', 'IronMan'],
     experience: ['Discover Experience'],
     projects: ['Discover Projects']
   };

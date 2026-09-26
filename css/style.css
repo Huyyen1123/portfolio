@@ -167,6 +167,9 @@ button{ font: inherit; }
   position: fixed;
   inset: 0;
   height: 100vh;
+  /* Phones: 100dvh is the height actually visible between the browser's
+     toolbars, so the bottom corner never hides behind Safari's bar. */
+  height: 100dvh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -664,10 +667,16 @@ button{ font: inherit; }
   color: rgba(255, 255, 255, 0.6);
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
 }
-.ts-corner-copyright{ display: flex; flex-direction: column; align-items: flex-end; gap: calc(4 * var(--u)); text-align: right; }
-.ts-credit a{ color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-.ts-credit a:hover{ color: #ffffff; }
-.ts-credit a:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
+.settings-credit{
+  margin: 14px 0 0;
+  font-size: 0.6rem;
+  line-height: 1.5;
+  color: rgba(231, 228, 218, 0.75);
+  text-align: center;
+}
+.settings-credit a{ color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.settings-credit a:hover{ color: #ffffff; }
+.settings-credit a:focus-visible{ outline: 2px solid var(--diamond); outline-offset: 2px; }
 
 /* ---- Menu windows (About / Experience / Projects) ----
    A modal window over the dimmed titlescreen: grey-bordered frame, a
@@ -1099,6 +1108,14 @@ html.motion-off .exp-inner{ transition: none; }
   .mw-close{ font-size: 0.85rem; }
 }
 
+@supports (height: 100dvh){
+  .titlescreen{ --u: min(calc(100vw / 1440), calc(100dvh / 820)); }
+}
+
+/* Keep the bottom corners above the iPhone home indicator. */
+.ts-player-corner{ bottom: calc(16 * var(--u) + env(safe-area-inset-bottom, 0px)); }
+.ts-corner-copyright{ bottom: calc(16 * var(--u) + env(safe-area-inset-bottom, 0px)); }
+
 /* ---- Phones held upright ----
    The title screen normally scales the 1440x900 design down by width,
    which on a phone makes everything tiny. Here it gets its own sizing:
@@ -1109,18 +1126,38 @@ html.motion-off .exp-inner{ transition: none; }
   /* Corner scale follows width, but shrinks on short phones (iPhone SE)
      so the character never climbs into the menu. */
   .titlescreen{
-    --u: min(calc(100vw / 600), calc(100vh / 1300));
+    --u: min(calc(100vw / 600), calc(100vh / 1500));
     padding-bottom: 36vh;
   }
-  /* Narrower than full width so the splash has room past the logo. */
-  .ts-content{ --logo-w: 84vw; }
+  @supports (height: 100dvh){
+    .titlescreen{
+      --u: min(calc(100vw / 600), calc(100dvh / 1500));
+      padding-bottom: 36dvh;
+    }
+  }
+  /* Narrow enough that the splash has room past the logo and the logo's
+     right end stays clear of the settings gear in the corner. */
+  .ts-content{ --logo-w: 72vw; }
   .ts-splash{ left: calc(var(--logo-w) * 0.86); top: calc(var(--logo-w) * 0.26); }
   .ts-title-block{ margin-bottom: calc(var(--logo-w) * 0.06); }
-  .ts-menu{ width: min(82vw, 360px); gap: 10px; }
+  .ts-menu{ width: min(78vw, 340px); gap: 10px; }
   .ts-menu-btn{ min-height: 50px; font-size: 1rem; padding: 4px 16px; }
   .ts-corner-version,
   .ts-corner-copyright{ font-size: 9px; }
-  .ts-credit{ max-width: 44vw; }
+  /* Keep tap targets finger-sized even when the corner scale is small. */
+  .ts-icon-btn{ width: 40px; height: 40px; }
+  .ts-icon-svg{ width: 22px; height: 22px; }
+  .ts-linkedin-btn{ width: auto; min-width: 116px; font-size: 12px; padding: 8px 12px; gap: 8px; }
+  .ts-linkedin-icon-box{ width: 20px; height: 20px; }
+}
+
+/* Very short phone screens (small iPhones with Safari's toolbars
+   showing): a slightly smaller logo and buttons so the character fits
+   below the menu. */
+@media (max-width: 700px) and (orientation: portrait) and (max-height: 600px){
+  .ts-content{ --logo-w: 64vw; }
+  .ts-menu-btn{ min-height: 42px; font-size: 0.9rem; }
+  .ts-menu{ gap: 8px; }
 }
 
 /* Touch screens can't hover: say "tap" instead. */
