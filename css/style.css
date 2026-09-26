@@ -1095,7 +1095,37 @@ html.motion-off .exp-inner{ transition: none; }
   .about-gallery{ max-width: 320px; margin: 0 auto; width: 100%; }
   #panel-about .about-frame{ flex: none; aspect-ratio: 4 / 5; min-height: 0; }
   .loading-logo{ padding: 24px 32px; }
-  /* .ts-menu / .ts-title-logo / .ts-title-block no longer need an
-     override here -- --logo-w and the menu's own clamp()s already
-     scale down cohesively below 640px. */
+  .mw-title{ font-size: 0.95rem; letter-spacing: 0.04em; }
+  .mw-close{ font-size: 0.85rem; }
+}
+
+/* ---- Phones held upright ----
+   The title screen normally scales the 1440x900 design down by width,
+   which on a phone makes everything tiny. Here it gets its own sizing:
+   a bigger scale unit for the corners (character, Connect, gear,
+   footer), a logo that nearly fills the width, and full-size, easy to
+   tap menu buttons. */
+@media (max-width: 700px) and (orientation: portrait){
+  /* Corner scale follows width, but shrinks on short phones (iPhone SE)
+     so the character never climbs into the menu. */
+  .titlescreen{
+    --u: min(calc(100vw / 600), calc(100vh / 1300));
+    padding-bottom: 36vh;
+  }
+  /* Narrower than full width so the splash has room past the logo. */
+  .ts-content{ --logo-w: 84vw; }
+  .ts-splash{ left: calc(var(--logo-w) * 0.86); top: calc(var(--logo-w) * 0.26); }
+  .ts-title-block{ margin-bottom: calc(var(--logo-w) * 0.06); }
+  .ts-menu{ width: min(82vw, 360px); gap: 10px; }
+  .ts-menu-btn{ min-height: 50px; font-size: 1rem; padding: 4px 16px; }
+  .ts-corner-version,
+  .ts-corner-copyright{ font-size: 9px; }
+  .ts-credit{ max-width: 44vw; }
+}
+
+/* Touch screens can't hover: say "tap" instead. */
+.mw-hint-touch{ display: none; }
+@media (hover: none), (pointer: coarse){
+  .mw-hint-hover{ display: none; }
+  .mw-hint-touch{ display: inline; }
 }

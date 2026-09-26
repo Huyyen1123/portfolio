@@ -370,6 +370,15 @@
       });
       count.textContent = (index + 1) + ' / ' + slides.length;
     }
+    // Swipe left/right on the photo (phones).
+    var frame = gallery.querySelector('.about-frame'), touchX = null;
+    frame.addEventListener('touchstart', function (e) { touchX = e.touches[0].clientX; }, { passive: true });
+    frame.addEventListener('touchend', function (e) {
+      if (touchX === null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      touchX = null;
+      if (Math.abs(dx) > 40) show(index + (dx < 0 ? 1 : -1));
+    });
     gallery.querySelector('[data-carousel-prev]').addEventListener('click', function () { show(index - 1); });
     gallery.querySelector('[data-carousel-next]').addEventListener('click', function () { show(index + 1); });
     document.addEventListener('keydown', function (e) {
