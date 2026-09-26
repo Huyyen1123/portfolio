@@ -1,6 +1,6 @@
 /* ---- Bottom-left player: Huy's Minecraft skin on a real player model ----
-   Renders assets/images/player-skin/skin.png (a standard 64x64 skin,
-   classic 4px arms) onto the Minecraft player model -- head 8x8x8, body
+   Renders one of Huy's skins in assets/images/player-skin/ (standard 64x64
+   skins, classic 4px arms) onto the Minecraft player model -- head 8x8x8, body
    8x12x4, arms/legs 4x12x4, plus the overlay layer as slightly inflated
    boxes -- facing straight forward, arms at its sides. Faces use
    Minecraft's own flat per-face brightness (baked into vertex colours)
@@ -11,11 +11,14 @@
    easing back to facing forward when the mouse leaves the window. All of
    that stops under <html class="motion-off"> (Settings > Reduce Motion or
    the OS setting). If WebGL or the skin fails, the flat avatar images
-   already inside .ts-sprite stay visible. */
+   already inside .ts-sprite stay visible.
+
+   window.setPlayerSkin(url) swaps the skin; js/main.js uses it to rotate
+   through the skins on each load and every minute. */
 (function () {
   'use strict';
 
-  var SKIN_URL = 'assets/images/player-skin/skin.png';
+  var DEFAULT_SKIN = 'assets/images/player-skin/skin.png';
   var HEAD_YAW_MAX = 0.75;    // radians the head can turn left/right
   var HEAD_PITCH_MAX = 0.45;  // radians it can tilt up/down
   var BODY_FOLLOW = 0.35;     // share of the head's turn the body follows
@@ -147,34 +150,65 @@
     kick();
   }
 
-  new THREE.TextureLoader().load(SKIN_URL, function (tex) {
-    tex.magFilter = THREE.NearestFilter;
-    tex.minFilter = THREE.NearestFilter;
-    tex.generateMipmaps = false;
-
-    model = new THREE.Group();
-    head = part(tex, { x: 0, y: 24, oy: 4, w: 8, h: 8, d: 8, u: 0, v: 0, ou: 32, ov: 0, inflate: 0.5 });
-    model.add(head);
-    [
-      { x: 0, y: 18, w: 8, h: 12, d: 4, u: 16, v: 16, ou: 16, ov: 32, inflate: 0.25 }, // body
-      { x: -6, y: 18, w: 4, h: 12, d: 4, u: 40, v: 16, ou: 40, ov: 32, inflate: 0.25 }, // right arm
-      { x: 6, y: 18, w: 4, h: 12, d: 4, u: 32, v: 48, ou: 48, ov: 48, inflate: 0.25 },  // left arm
-      { x: -2, y: 6, w: 4, h: 12, d: 4, u: 0, v: 16, ou: 0, ov: 32, inflate: 0.25 },    // right leg
-      { x: 2, y: 6, w: 4, h: 12, d: 4, u: 16, v: 48, ou: 0, ov: 48, inflate: 0.25 }     // left leg
-    ].forEach(function (p) { model.add(part(tex, p)); });
-    scene.add(model);
-
-    host.appendChild(canvas);
-    host.classList.add('ts-sprite-3d');
-    resize();
-    window.addEventListener('resize', resize);
-    document.addEventListener('mousemove', function (e) { aimAt(e.clientX, e.clientY); });
-    document.addEventListener('touchstart', function (e) {
-      if (e.touches[0]) aimAt(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-    document.documentElement.addEventListener('mouseleave', function () {
-      target.yaw = target.pitch = 0;
-      kick();
+  function loadSkin(url, done) {
+    new THREE.TextureLoader().load(url, function (tex) {
+      tex.magFilter = THREE.NearestFilter;
+      tex.minFilter = THREE.NearestFilter;
+      tex.generateMipmaps = false;
+      done(tex);
     });
-  });
+  }
+
+  // Swapping skins reuses the model: only each mesh's texture changes.
+  var wantedSkin = null, builtWith = null;
+  window.setPlayerSkin = function (url) {
+    wantedSkin = url;
+    if (!model || url === builtWith) return;
+    loadSkin(url, function (tex) {
+      if (wantedSkin !== url) { tex.dispose(); return; }
+      var old = null;
+      model.traverse(function (o) {
+        if (o.isMesh) { old = o.material.map; o.material.map = tex; o.material.needsUpdate = true; }
+      });
+      if (old && old !== tex) old.dispose();
+      builtWith = url;
+      renderer.render(scene, camera);
+    });
+  };
+
+  // Wait until every script has run, so main.js has already picked this
+  // load's skin and the default never flashes first.
+  function start() {
+    loadSkin(wantedSkin || DEFAULT_SKIN, function (tex) {
+      builtWith = wantedSkin || DEFAULT_SKIN;
+      model = new THREE.Group();
+      head = part(tex, { x: 0, y: 24, oy: 4, w: 8, h: 8, d: 8, u: 0, v: 0, ou: 32, ov: 0, inflate: 0.5 });
+      model.add(head);
+      [
+        { x: 0, y: 18, w: 8, h: 12, d: 4, u: 16, v: 16, ou: 16, ov: 32, inflate: 0.25 }, // body
+        { x: -6, y: 18, w: 4, h: 12, d: 4, u: 40, v: 16, ou: 40, ov: 32, inflate: 0.25 }, // right arm
+        { x: 6, y: 18, w: 4, h: 12, d: 4, u: 32, v: 48, ou: 48, ov: 48, inflate: 0.25 },  // left arm
+        { x: -2, y: 6, w: 4, h: 12, d: 4, u: 0, v: 16, ou: 0, ov: 32, inflate: 0.25 },    // right leg
+        { x: 2, y: 6, w: 4, h: 12, d: 4, u: 16, v: 48, ou: 0, ov: 48, inflate: 0.25 }     // left leg
+      ].forEach(function (p) { model.add(part(tex, p)); });
+      scene.add(model);
+
+      host.appendChild(canvas);
+      host.classList.add('ts-sprite-3d');
+      resize();
+      window.addEventListener('resize', resize);
+      document.addEventListener('mousemove', function (e) { aimAt(e.clientX, e.clientY); });
+      document.addEventListener('touchstart', function (e) {
+        if (e.touches[0]) aimAt(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+      document.documentElement.addEventListener('mouseleave', function () {
+        target.yaw = target.pitch = 0;
+        kick();
+      });
+      // A skin requested while the first one was still loading.
+      if (wantedSkin && wantedSkin !== builtWith) window.setPlayerSkin(wantedSkin);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
 })();

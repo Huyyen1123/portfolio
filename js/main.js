@@ -27,33 +27,53 @@
   }
   applyMotionState();
 
-  // ---- Splash text: steps through SPLASHES in order, one per page
-  // load (1 -> 2 -> 3 -> 4 -> 1...), remembered in localStorage. ----
-  var SPLASHES = ['Software Engineer!!', 'IRONMAN!!', 'Vietnamese!!', '2005!!'];
-  var splashEl = document.querySelector('.ts-splash');
-  if (splashEl) {
-    var splashIndex = 0;
+  // ---- Rotations: the yellow splash, the nametag above the player and
+  // the player's skin each step through their list in order -- one step
+  // on every page load and one more every minute while the page is open.
+  // Each remembers its place in localStorage, so a refresh continues the
+  // cycle instead of restarting it. ----
+  var ROTATE_EVERY_MS = 60 * 1000;
+  function rotate(storageKey, items, apply) {
+    var index = 0;
     try {
-      var last = parseInt(localStorage.getItem('portfolio-splash-index'), 10);
-      if (!isNaN(last)) splashIndex = (last + 1) % SPLASHES.length;
-      localStorage.setItem('portfolio-splash-index', String(splashIndex));
-    } catch (e) { /* storage blocked: always show the first line */ }
-    splashEl.textContent = SPLASHES[splashIndex];
-    splashEl.style.setProperty('--splash-len', SPLASHES[splashIndex].length);
+      var last = parseInt(localStorage.getItem(storageKey), 10);
+      if (!isNaN(last)) index = (last + 1) % items.length;
+    } catch (e) { /* storage blocked: start from the first item */ }
+    function show() {
+      apply(items[index]);
+      try { localStorage.setItem(storageKey, String(index)); } catch (e) { /* ignore */ }
+    }
+    show();
+    setInterval(function () {
+      index = (index + 1) % items.length;
+      show();
+    }, ROTATE_EVERY_MS);
   }
 
-  // ---- Nametag above the player: steps through NAMETAGS in order, one
-  // per page load, like the splash text above. ----
-  var NAMETAGS = ['Wassup', 'Yo!', 'Hi'];
+  var splashEl = document.querySelector('.ts-splash');
+  if (splashEl) {
+    rotate('portfolio-splash-index',
+      ['Software Engineer!!', 'IRONMAN!!', 'Vietnamese!!', '2005!!'],
+      function (line) {
+        splashEl.textContent = line;
+        splashEl.style.setProperty('--splash-len', line.length);
+      });
+  }
+
   var nametagEl = document.querySelector('.ts-nametag');
   if (nametagEl) {
-    var nametagIndex = 0;
-    try {
-      var lastTag = parseInt(localStorage.getItem('portfolio-nametag-index'), 10);
-      if (!isNaN(lastTag)) nametagIndex = (lastTag + 1) % NAMETAGS.length;
-      localStorage.setItem('portfolio-nametag-index', String(nametagIndex));
-    } catch (e) { /* storage blocked: always show the first one */ }
-    nametagEl.textContent = NAMETAGS[nametagIndex];
+    rotate('portfolio-nametag-index', ['Wassup', 'Yo!', 'Hi'], function (tag) {
+      nametagEl.textContent = tag;
+    });
+  }
+
+  // js/player.js defines setPlayerSkin (it loads before this file).
+  if (window.setPlayerSkin) {
+    rotate('portfolio-skin-index', [
+      'assets/images/player-skin/skin.png',
+      'assets/images/player-skin/skin-streetwear.png',
+      'assets/images/player-skin/skin-tailor.png'
+    ], window.setPlayerSkin);
   }
 
   // ---- Loading screen -> titlescreen handoff ----
